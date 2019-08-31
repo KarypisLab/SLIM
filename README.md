@@ -156,11 +156,16 @@ SLIM can be used by running the command-line programs that are located under `./
 - `slim_predict`: for applying a previously estimated model, and
 - `slim_mselect`: for exploring a set of hyper-parameters in order to select the best performing model.
 
-Additional information about how to use these command-line programs is located in SLIM's reference manual available in ([HTML](./doxygen/html/index.html) or [PDF](./doxygen/latex/refman.pdf) formats.
+Additional information about how to use these command-line programs is located in
+SLIM's reference manual that is available at
+[./doxygen/html/index.html](http://glaros.dtc.umn.edu/gkhome/files/fs/sw/slim/doc/html/index.html)
+or
+[./doxygen/latex/refman.pdf](http://glaros.dtc.umn.edu/gkhome/files/fs/sw/slim/doc/refman.pdf).
 
 ###  Library interface
 
-You can also use SLIM by direclty linking into your C/C++ program via its library interface. SLIM's API is described in SLIM's reference manual ([HTML](./doxygen/html/index.html) or [PDF](./doxygen/latex/refman.pdf)).
+You can also use SLIM by direclty linking into your C/C++ program via its library interface. SLIM's API is described 
+in SLIM's reference manual (see links above).
 
 ## Citing
 If you use any part of this library in your research, please cite it using the
