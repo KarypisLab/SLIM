@@ -1,0 +1,93 @@
+
+CMakeLists.txt,41
+add_executable(5,102
+endforeach(11,438
+
+cmdline_learn.c,311
+static struct gk_option long_options[long_options16,377
+static gk_StringMap_t ifmt_options[ifmt_options35,1414
+static gk_StringMap_t simtype_options[simtype_options43,1695
+static char helpstr[helpstr53,2070
+static char shorthelpstr[shorthelpstr122,4290
+params_t *parse_cmdline(parse_cmdline133,4645
+
+cmdline_mselect.c,311
+static struct gk_option long_options[long_options16,377
+static gk_StringMap_t ifmt_options[ifmt_options34,1358
+static gk_StringMap_t simtype_options[simtype_options42,1639
+static char helpstr[helpstr52,2014
+static char shorthelpstr[shorthelpstr121,4212
+params_t *parse_cmdline(parse_cmdline132,4577
+
+cmdline_predict.c,246
+static struct gk_option long_options[long_options16,377
+static gk_StringMap_t ifmt_options[ifmt_options29,1048
+static char helpstr[helpstr40,1500
+static char shorthelpstr[shorthelpstr86,2873
+params_t *parse_cmdline(parse_cmdline97,3240
+
+cmdline_usmlp.c,248
+static struct gk_option long_options[long_options16,377
+static gk_StringMap_t ifmt_options[ifmt_options35,1417
+static char helpstr[helpstr46,1869
+static char shorthelpstr[shorthelpstr110,3837
+params_t *parse_cmdline(parse_cmdline121,4191
+
+def.h,406
+#define __SLIMBINDEF_H__11,190
+#define CMD_OUTFILE 15,244
+#define CMD_L1R 16,278
+#define CMD_L2R 17,312
+#define CMD_OPTTOL 18,346
+#define CMD_NITERS 19,380
+#define CMD_NNBRS 20,414
+#define CMD_ORDERED 21,448
+#define CMD_NTHREADS 22,482
+#define CMD_SIMTYPE 23,516
+#define CMD_IFMT 24,550
+#define CMD_BINARIZE 25,585
+#define CMD_NRCMDS 26,620
+#define CMD_DBGLVL 27,655
+#define CMD_HELP 28,691
+
+proto.h,34
+#define __SLIMBINPROTO_H__12,185
+
+slim_learn.c,17
+int main(15,395
+
+slim_mselect.c,17
+int main(15,394
+
+slim_predict.c,17
+int main(15,401
+
+slim_usmlp.c,17
+int main(15,396
+
+slimbin.h,71
+#define __SLIMBIN_H__12,201
+  #undef rint28,437
+#define rint(30,458
+
+struct.h,505
+#define __SLIMBINSTRUCT_H__12,190
+  char *trnfile;trnfile20,403
+  char *tstfile;tstfile21,468
+  char *l12file;l12file22,539
+  char *mdlfile;mdlfile24,666
+  char *outfile;outfile25,729
+  double l1r;27,787
+  double l2r;28,859
+  int nnbrs;29,931
+  int simtype;30,999
+  int nthreads;31,1080
+  double optTol;32,1139
+  int niters;33,1190
+  int ordered;34,1268
+  int ifmt;35,1339
+  int readvals;36,1386
+  int binarize;37,1450
+  int nrcmds;39,1577
+  int dbglvl;40,1635
+} params_t;42,1682

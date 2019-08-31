@@ -1,0 +1,32 @@
+\begin{theindex}
+
+  \item {Functions for using the SLIM library}, \hyperpage{7}
+    \subitem {SLIM\_DetermineHeadAndTail}, \hyperpage{12}
+    \subitem {SLIM\_dSetDefaults}, \hyperpage{9}
+    \subitem {SLIM\_FreeModel}, \hyperpage{11}
+    \subitem {SLIM\_GetTopN}, \hyperpage{8}
+    \subitem {SLIM\_iSetDefaults}, \hyperpage{9}
+    \subitem {SLIM\_Learn}, \hyperpage{8}
+    \subitem {SLIM\_ReadModel}, \hyperpage{11}
+    \subitem {SLIM\_WriteModel}, \hyperpage{11}
+
+  \indexspace
+
+  \item {SLIM\_DetermineHeadAndTail}
+    \subitem {Functions for using the SLIM library}, \hyperpage{12}
+  \item {SLIM\_dSetDefaults}
+    \subitem {Functions for using the SLIM library}, \hyperpage{9}
+  \item {SLIM\_FreeModel}
+    \subitem {Functions for using the SLIM library}, \hyperpage{11}
+  \item {SLIM\_GetTopN}
+    \subitem {Functions for using the SLIM library}, \hyperpage{8}
+  \item {SLIM\_iSetDefaults}
+    \subitem {Functions for using the SLIM library}, \hyperpage{9}
+  \item {SLIM\_Learn}
+    \subitem {Functions for using the SLIM library}, \hyperpage{8}
+  \item {SLIM\_ReadModel}
+    \subitem {Functions for using the SLIM library}, \hyperpage{11}
+  \item {SLIM\_WriteModel}
+    \subitem {Functions for using the SLIM library}, \hyperpage{11}
+
+\end{theindex}

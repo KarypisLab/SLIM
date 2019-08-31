@@ -1,0 +1,271 @@
+/*! 
+\mainpage \slim Documentation
+\tableofcontents
+
+<!-- ***************************************************************************** -->
+<!-- ***************************************************************************** -->
+Sparse LInear Method (\slim) \cite ning2011slim  is an item-based top-N recommendation approach that combines the advantages of neighborhood- and model-based collaborative filtering methods. It achieves state-of-the-art recommendation performance and has low computational requirements.
+
+This package provides a C-based optimized multi-threaded implementation of SLIM that consists of a set of command-line programs and a user-callable library for estimating and applying SLIM models as well as an easy to use Python interface. 
+
+
+<!-- ***************************************************************************** -->
+---
+\section download Downloading \slim
+
+\slim uses Git submodules to manage external dependencies. Hence, please specify
+the `--recursive` option while cloning the repo as follow:
+\code{.sh}
+git clone --recursive https://github.umn.edu/dminers/slim.git
+\endcode
+
+
+\section installation Building standalone \slim binary and shared library
+
+To build SLIM you can follow the instructions below:
+
+\subsection deps Dependencies
+
+General dependencies for building slim are: gcc, cmake, build-essential.
+In Ubuntu systems these can be obtained from the apt package manager (e.g., apt-get install cmake, etc) 
+
+@verbatim  
+sudo apt-get install build-essential
+sudo apt-get install cmake
+@endverbatim
+
+\subsection without_mkl Building and installing SLIM 
+
+In order to build SLIM, first build GKlib by running:
+
+@verbatim  
+cd lib/GKlib
+make config openmp=set
+make
+cd ../../
+@endverbatim
+
+
+After building GKlib, you can build and install SLIM by running:
+
+@verbatim  
+make config shared=1 cc=gcc cxx=gcc prefix=~/.local
+make install
+@endverbatim
+
+\subsubsection mkl_build Building SLIM with Intel's MKL support (optional)
+
+In order to use SLIM's ADMM solver, you will need to install [Intel's MKL library](https://software.intel.com/en-us/mkl). 
+
+For Ubuntu machines on which you have `sudo` privilages, we provided the `depmkl.sh` script that automates the process of obtaining and installing MKL, which can be used as follows:
+
+@verbatim  
+bash depmkl.sh
+source ~/.bashrc 
+@endverbatim
+
+For machines on which you do not have `sudo` privilages, you should download the
+MKL tarball from [Intel's website](https://software.intel.com/en-us/mkl) and then install it locally using the `install.sh` script they provide. After installing it you should add `your-path-to-intel/intel/mkl/bin/mklvars.sh intel64`in your bashrc and run `source ~/.bashrc`.
+
+You can build and install SLIM with MKL support by running:
+
+@verbatim  
+make config shared=1 cc=gcc cxx=gcc with_mkl=1 prefix=~/.local
+make install
+@endverbatim
+
+Note that SLIM's ADMM solver usually outperforms the default optimizer included in SLIM when the number of items in the dataset is relatively small compared to the number of users and the number of non-zeros in the dataset is large. 
+
+\section pythonpackage Python Package installation
+
+The Python package is located at `python-package/`. 
+The installation of python-package requires Python `distutils` module and is often part of the core Python package or can be installed using a package manager, e.g., in Debian use
+
+@verbatim  
+sudo apt-get install python-setuptools
+@endverbatim  
+
+After building the SLIM library, follow one of the following steps to install the python-package:
+
+1. Install python-package system-wide (this requires sudo priveleges):
+@verbatim  
+cd python-package
+sudo python setup.py install
+@endverbatim  
+
+2. Install python-package only for the current users (without sudo priveleges):
+@verbatim  
+cd python-package
+python setup.py install --user
+@endverbatim  
+
+\section getting_started Getting Started
+
+Here are some examples to quickly try out SLIM on the sample datasets that are provided with SLIM.
+
+\subsection python_getting_started Python
+
+\code{.py}
+import pandas as pd
+from SLIM import SLIM, SLIMatrix
+
+#read training data stored as triplets <user> <item> <rating>
+traindata = pd.read_csv('../test/AutomotiveTrain.ijv', delimiter = ' ', header=None)
+trainmat = SLIMatrix(traindata)
+
+#set up parameters to learn model, e.g., use Coordinate Descent with L1 and L2
+#regularization
+params = {'algo':'cd', 'nthreads':2, 'l1r':1., 'l2r':1.}
+
+#learn the model using training data and desired parameters
+model = SLIM()
+model.train(params, trnmat)
+
+#read test data having candidate items for users
+testdata = pd.read_csv('../test/AutomotiveTest.ijv', delimiter = ' ', header=None)
+#NOTE: model object is passed as an argument while generating test matrix
+testmat = SLIMatrix(testdata, model)
+
+#generate top-10 recommendations
+prediction_res = model.predict(testmat, nrcmds=10, outfile = 'output.txt')
+
+#dump the model to files on disk
+model.save_model(modelfname='model.csr', # filename to save the model as a csr matrix
+                 mapfname='map.csr' # filename to save the item map
+                )
+
+#load the model from from disk
+model_new = SLIM()
+model_new.load_model(modelfname='model.csr', # filename of the model
+                 mapfname='map.csr' # filename of the item map
+                )
+\endcode
+
+The users can also refer to the python notebook `UserGuide.ipynb` located at
+`./python-package/UserGuide.ipynb` for more examples on using the python api.
+
+\subsection standalone_getting_Started Standalone
+\slim can also be used standalone by running the built binaries located under
+`./build` directory. The `slim_learn` and `slim_predict` program can be used to
+learn the model and predict using an existing model, respectively. The usage of
+`slim_learn` is generally as follow:
+
+@verbatim  
+slim_learn [options] train-file [output-model-file] 
+@endverbatim  
+
+In above command, `train-file` refers to the rating matrix stored in a file on disk in
+sparse format (by default it expects CSR format) and  `output-model-file` is
+the name of the file that will be used to save the learned model. The available
+options will be described later in detail. Following shows an example of using
+the `slim_learn` program:
+
+@verbatim  
+./build/Linux-x86_64/src/programs/slim_learn test/ml100k-train.csr model_output.slim
+@endverbatim  
+
+Similarly, the recommendations can be generated by using the program
+`slim_predict` and the usage of `slim_predict` is as follow:
+
+@verbatim  
+slim_predict [options] model-file train-file [test-file]
+@endverbatim  
+
+In above command, `model-file` refers to the \slim model saved in a file,
+`train-file` refers to the training data or past historical data used to
+generate the model  and `test-file` is the test data containing hidden ratings
+for the users.
+
+\section parameters \slim parameters
+
+  The following optional parameters can be provided to the `slim_learn` program.
+       - ifmt [default=csr]
+        - Specifies the format of the input file. Available options are:
+            csr     -  CSR format [default].
+            csrnv   -  CSR format without ratings.
+            cluto   -  Format used by CLUTO.
+            ijv     -  One (row#, col#, val) per line.
+       
+       - binarize [default=0]
+          - Specifies that the ratings should be binarized.
+    
+       - l1r [default=1.0]
+          - Specifies the L1 regularization parameter. 
+    
+       - ipmdlfile [default=""]
+          - Specifies the file used to initilize the model.
+    
+       - l2r [default=1.0]
+          - Specifies the L2 regularization parameter.
+    
+       - nnbrs [default=0]
+          - Selects fSLIM model and specifies the number of item nearest neighbors to be used. Specifying few neighbors will speed-up the model learning but it may lower the accuracy. The parameter *simtype* sets the measurement of similarity. This package supports three similarity measurements, Jaccard similarity (\"jac\"), Cosine similarity (\"cos\"), and inner product (\"dotp\"). The default value for *simtype* is \"cos\". A fSLIM model can be used in the same way with a SLIM model. Note that, a fSLIM model can only be trained using coordinate descent.
+ 
+       - simtype [default=cos]
+          - Specifies the similarity function for determining the neighbors. Available options are:
+            - cos     -  cosine similarity [default].
+            - jac     -  extended Jacquard similarit.
+            - dotp    -  dot-product similarity.
+    
+       - algo [default=cd]
+          - Specifies the optimization algorithms for learning the model. Available options are:
+            - admm     -  ADMM.
+            - cd       -  Coordinate Descent.
+    
+       - optTol [default=1e-7]
+          - Specifies the threshold used during optimization for termination.
+    
+       - niters [default=10000]
+          - Specifies the maximum number of allowed optimization iterations. 
+    
+       - nthreads 
+          - Specifies the number of threads to be used for estimation. Default
+            value is maximum number of threads available on the machine.
+    
+       - dbglvl 
+          - Specifies the debug level. The default value turns on info and timing.
+    
+       - help
+          - Prints the parameter details.
+    
+\section Citing
+If you use any part of this library in your research, please cite it using the
+following BibTex entry:
+
+@verbatim  
+@online{slim,
+  title = {{SLIM}: Sparse LInear Model library},
+  author = {Ning, Xia and Nikolakopoulos, Athanasios N. and Shui, Zeren and Sharma, Mohit and Karypis, George},
+  url = {https://github.com/KarypisLab/SLIM},
+  publisher = {GitHub},
+  journal = {GitHub Repository},
+  year = {2019},
+}
+@endverbatim
+
+
+\section contact Credits & Contact Information
+\slim was written by George Karypis with contributions by Xia Ning, Athanasios
+N. Nikolakopoulos, Zeren Shui and Mohit Sharma.
+
+If you encounter any problems or have any suggestions, please contact George Karypis
+at <a href="mailto:karypis@cs.umn.edu">karypis@cs.umn.edu</a>.
+
+
+\section license Copyright & License Notice
+Copyright 2019, Regents of the University of Minnesota
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied. See the License for the specific language governing
+permissions and limitations under the License.
+
+
+*/

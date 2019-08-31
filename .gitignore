@@ -1,0 +1,10 @@
+*.o
+*.a
+*.la
+*.lo
+*.in
+*.swp
+build/
+lib/
+.vscode/
+

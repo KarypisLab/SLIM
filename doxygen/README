@@ -1,0 +1,10 @@
+Prerequisites:
+1. doxygen
+2. bibtex
+
+Generate html documentation by running the following command:
+``make``
+
+Open html/index.html or latex/refman.pdf in web browser to validate documentation.
+
+Add or modify `.dox` files to update documentation.

@@ -1,0 +1,215 @@
+Sparse L\+Inear Method (S\+L\+IM) \cite{ning2011slim} is an item-\/based top-\/N recommendation approach that combines the advantages of neighborhood-\/ and model-\/based collaborative filtering methods. It achieves state-\/of-\/the-\/art recommendation performance and has low computational requirements.
+
+This package provides a C-\/based optimized multi-\/threaded implementation of S\+L\+IM that consists of a set of command-\/line programs and a user-\/callable library for estimating and applying S\+L\+IM models as well as an easy to use Python interface.
+
+\subsection*{}\hypertarget{index_download}{}\section{Downloading S\+L\+IM}\label{index_download}
+S\+L\+IM uses Git submodules to manage external dependencies. Hence, please specify the {\ttfamily -\/-\/recursive} option while cloning the repo as follow\+: 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{git clone --recursive https://github.umn.edu/dminers/slim.git}
+\end{DoxyCode}
+\hypertarget{index_installation}{}\section{Building standalone S\+L\+I\+M binary and shared library}\label{index_installation}
+To build S\+L\+IM you can follow the instructions below\+:\hypertarget{index_deps}{}\subsection{Dependencies}\label{index_deps}
+General dependencies for building slim are\+: gcc, cmake, build-\/essential. In Ubuntu systems these can be obtained from the apt package manager (e.\+g., apt-\/get install cmake, etc)
+
+\begin{DoxyVerb}sudo apt-get install build-essential
+sudo apt-get install cmake
+\end{DoxyVerb}
+\hypertarget{index_without_mkl}{}\subsection{Building and installing S\+L\+IM}\label{index_without_mkl}
+In order to build S\+L\+IM, first build G\+Klib by running\+:
+
+\begin{DoxyVerb}cd lib/GKlib
+make config openmp=set
+make
+cd ../../
+\end{DoxyVerb}
+
+
+After building G\+Klib, you can build and install S\+L\+IM by running\+:
+
+\begin{DoxyVerb}make config shared=1 cc=gcc cxx=gcc prefix=~/.local
+make install
+\end{DoxyVerb}
+\hypertarget{index_mkl_build}{}\subsubsection{Building S\+L\+I\+M with Intel\textquotesingle{}s M\+K\+L support (optional)}\label{index_mkl_build}
+In order to use S\+L\+IM\textquotesingle{}s A\+D\+MM solver, you will need to install \href{https://software.intel.com/en-us/mkl}{\texttt{ Intel\textquotesingle{}s M\+KL library}}.
+
+For Ubuntu machines on which you have {\ttfamily sudo} privilages, we provided the {\ttfamily depmkl.\+sh} script that automates the process of obtaining and installing M\+KL, which can be used as follows\+:
+
+\begin{DoxyVerb}bash depmkl.sh
+source ~/.bashrc 
+\end{DoxyVerb}
+
+
+For machines on which you do not have {\ttfamily sudo} privilages, you should download the M\+KL tarball from \href{https://software.intel.com/en-us/mkl}{\texttt{ Intel\textquotesingle{}s website}} and then install it locally using the {\ttfamily install.\+sh} script they provide. After installing it you should add {\ttfamily your-\/path-\/to-\/intel/intel/mkl/bin/mklvars.\+sh intel64}in your bashrc and run {\ttfamily source $\sim$/.bashrc}.
+
+You can build and install S\+L\+IM with M\+KL support by running\+:
+
+\begin{DoxyVerb}make config shared=1 cc=gcc cxx=gcc with_mkl=1 prefix=~/.local
+make install
+\end{DoxyVerb}
+
+
+Note that S\+L\+IM\textquotesingle{}s A\+D\+MM solver usually outperforms the default optimizer included in S\+L\+IM when the number of items in the dataset is relatively small compared to the number of users and the number of non-\/zeros in the dataset is large.\hypertarget{index_pythonpackage}{}\section{Python Package installation}\label{index_pythonpackage}
+The Python package is located at {\ttfamily python-\/package/}. The installation of python-\/package requires Python {\ttfamily distutils} module and is often part of the core Python package or can be installed using a package manager, e.\+g., in Debian use
+
+\begin{DoxyVerb}sudo apt-get install python-setuptools
+\end{DoxyVerb}
+
+
+After building the S\+L\+IM library, follow one of the following steps to install the python-\/package\+:
+
+
+\begin{DoxyEnumerate}
+\item Install python-\/package system-\/wide (this requires sudo priveleges)\+: \begin{DoxyVerb}cd python-package
+sudo python setup.py install
+\end{DoxyVerb}
+
+\item Install python-\/package only for the current users (without sudo priveleges)\+: \begin{DoxyVerb}cd python-package
+python setup.py install --user
+\end{DoxyVerb}
+
+\end{DoxyEnumerate}\hypertarget{index_getting_started}{}\section{Getting Started}\label{index_getting_started}
+Here are some examples to quickly try out S\+L\+IM on the sample datasets that are provided with S\+L\+IM.\hypertarget{index_python_getting_started}{}\subsection{Python}\label{index_python_getting_started}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\textcolor{keyword}{import} pandas \textcolor{keyword}{as} pd}
+\DoxyCodeLine{\textcolor{keyword}{from} SLIM \textcolor{keyword}{import} SLIM, SLIMatrix}
+\DoxyCodeLine{}
+\DoxyCodeLine{\textcolor{comment}{\#read training data stored as triplets <user> <item> <rating>}}
+\DoxyCodeLine{traindata = pd.read\_csv(\textcolor{stringliteral}{'../test/AutomotiveTrain.ijv'}, delimiter = \textcolor{stringliteral}{' '}, header=\textcolor{keywordtype}{None})}
+\DoxyCodeLine{trainmat = SLIMatrix(traindata)}
+\DoxyCodeLine{}
+\DoxyCodeLine{\textcolor{comment}{\#set up parameters to learn model, e.g., use Coordinate Descent with L1 and L2}}
+\DoxyCodeLine{\textcolor{comment}{\#regularization}}
+\DoxyCodeLine{params = \{\textcolor{stringliteral}{'algo'}:\textcolor{stringliteral}{'cd'}, \textcolor{stringliteral}{'nthreads'}:2, \textcolor{stringliteral}{'l1r'}:1., \textcolor{stringliteral}{'l2r'}:1.\}}
+\DoxyCodeLine{}
+\DoxyCodeLine{\textcolor{comment}{\#learn the model using training data and desired parameters}}
+\DoxyCodeLine{model = SLIM()}
+\DoxyCodeLine{model.train(params, trnmat)}
+\DoxyCodeLine{}
+\DoxyCodeLine{\textcolor{comment}{\#read test data having candidate items for users}}
+\DoxyCodeLine{testdata = pd.read\_csv(\textcolor{stringliteral}{'../test/AutomotiveTest.ijv'}, delimiter = \textcolor{stringliteral}{' '}, header=\textcolor{keywordtype}{None})}
+\DoxyCodeLine{\textcolor{comment}{\#NOTE: model object is passed as an argument while generating test matrix}}
+\DoxyCodeLine{testmat = SLIMatrix(testdata, model)}
+\DoxyCodeLine{}
+\DoxyCodeLine{\textcolor{comment}{\#generate top-10 recommendations}}
+\DoxyCodeLine{prediction\_res = model.predict(testmat, nrcmds=10, outfile = \textcolor{stringliteral}{'output.txt'})}
+\DoxyCodeLine{}
+\DoxyCodeLine{\textcolor{comment}{\#dump the model to files on disk}}
+\DoxyCodeLine{model.save\_model(modelfname=\textcolor{stringliteral}{'model.csr'}, \textcolor{comment}{\# filename to save the model as a csr matrix}}
+\DoxyCodeLine{                 mapfname=\textcolor{stringliteral}{'map.csr'} \textcolor{comment}{\# filename to save the item map}}
+\DoxyCodeLine{                )}
+\DoxyCodeLine{}
+\DoxyCodeLine{\textcolor{comment}{\#load the model from from disk}}
+\DoxyCodeLine{model\_new = SLIM()}
+\DoxyCodeLine{model\_new.load\_model(modelfname=\textcolor{stringliteral}{'model.csr'}, \textcolor{comment}{\# filename of the model}}
+\DoxyCodeLine{                 mapfname=\textcolor{stringliteral}{'map.csr'} \textcolor{comment}{\# filename of the item map}}
+\DoxyCodeLine{                )}
+\end{DoxyCode}
+
+
+The users can also refer to the python notebook {\ttfamily User\+Guide.\+ipynb} located at {\ttfamily ./python-\/package/\+User\+Guide.ipynb} for more examples on using the python api.\hypertarget{index_standalone_getting_Started}{}\subsection{Standalone}\label{index_standalone_getting_Started}
+S\+L\+IM can also be used standalone by running the built binaries located under {\ttfamily ./build} directory. The {\ttfamily slim\+\_\+learn} and {\ttfamily slim\+\_\+predict} program can be used to learn the model and predict using an existing model, respectively. The usage of {\ttfamily slim\+\_\+learn} is generally as follow\+:
+
+\begin{DoxyVerb}slim_learn [options] train-file [output-model-file] 
+\end{DoxyVerb}
+
+
+In above command, {\ttfamily train-\/file} refers to the rating matrix stored in a file on disk in sparse format (by default it expects C\+SR format) and {\ttfamily output-\/model-\/file} is the name of the file that will be used to save the learned model. The available options will be described later in detail. Following shows an example of using the {\ttfamily slim\+\_\+learn} program\+:
+
+\begin{DoxyVerb}./build/Linux-x86_64/src/programs/slim_learn test/ml100k-train.csr model_output.slim
+\end{DoxyVerb}
+
+
+Similarly, the recommendations can be generated by using the program {\ttfamily slim\+\_\+predict} and the usage of {\ttfamily slim\+\_\+predict} is as follow\+:
+
+\begin{DoxyVerb}slim_predict [options] model-file train-file [test-file]
+\end{DoxyVerb}
+
+
+In above command, {\ttfamily model-\/file} refers to the S\+L\+IM model saved in a file, {\ttfamily train-\/file} refers to the training data or past historical data used to generate the model and {\ttfamily test-\/file} is the test data containing hidden ratings for the users.\hypertarget{index_parameters}{}\section{S\+L\+I\+M parameters}\label{index_parameters}
+The following optional parameters can be provided to the {\ttfamily slim\+\_\+learn} program.
+\begin{DoxyItemize}
+\item ifmt \mbox{[}default=csr\mbox{]}
+\begin{DoxyItemize}
+\item Specifies the format of the input file. Available options are\+: csr -\/ C\+SR format \mbox{[}default\mbox{]}. csrnv -\/ C\+SR format without ratings. cluto -\/ Format used by C\+L\+U\+TO. ijv -\/ One (row\#, col\#, val) per line.
+\end{DoxyItemize}
+\item binarize \mbox{[}default=0\mbox{]}
+\begin{DoxyItemize}
+\item Specifies that the ratings should be binarized.
+\end{DoxyItemize}
+\item l1r \mbox{[}default=1.\+0\mbox{]}
+\begin{DoxyItemize}
+\item Specifies the L1 regularization parameter.
+\end{DoxyItemize}
+\item ipmdlfile \mbox{[}default=\char`\"{}\char`\"{}\mbox{]}
+\begin{DoxyItemize}
+\item Specifies the file used to initilize the model.
+\end{DoxyItemize}
+\item l2r \mbox{[}default=1.\+0\mbox{]}
+\begin{DoxyItemize}
+\item Specifies the L2 regularization parameter.
+\end{DoxyItemize}
+\item nnbrs \mbox{[}default=0\mbox{]}
+\begin{DoxyItemize}
+\item Selects f\+S\+L\+IM model and specifies the number of item nearest neighbors to be used. Specifying few neighbors will speed-\/up the model learning but it may lower the accuracy. The parameter {\itshape simtype} sets the measurement of similarity. This package supports three similarity measurements, Jaccard similarity ("jac"), Cosine similarity ("cos"), and inner product ("dotp"). The default value for {\itshape simtype} is "cos". A f\+S\+L\+IM model can be used in the same way with a S\+L\+IM model. Note that, a f\+S\+L\+IM model can only be trained using coordinate descent.
+\end{DoxyItemize}
+\item simtype \mbox{[}default=cos\mbox{]}
+\begin{DoxyItemize}
+\item Specifies the similarity function for determining the neighbors. Available options are\+:
+\begin{DoxyItemize}
+\item cos -\/ cosine similarity \mbox{[}default\mbox{]}.
+\item jac -\/ extended Jacquard similarit.
+\item dotp -\/ dot-\/product similarity.
+\end{DoxyItemize}
+\end{DoxyItemize}
+\item algo \mbox{[}default=cd\mbox{]}
+\begin{DoxyItemize}
+\item Specifies the optimization algorithms for learning the model. Available options are\+:
+\begin{DoxyItemize}
+\item admm -\/ A\+D\+MM.
+\item cd -\/ Coordinate Descent.
+\end{DoxyItemize}
+\end{DoxyItemize}
+\item opt\+Tol \mbox{[}default=1e-\/7\mbox{]}
+\begin{DoxyItemize}
+\item Specifies the threshold used during optimization for termination.
+\end{DoxyItemize}
+\item niters \mbox{[}default=10000\mbox{]}
+\begin{DoxyItemize}
+\item Specifies the maximum number of allowed optimization iterations.
+\end{DoxyItemize}
+\item nthreads
+\begin{DoxyItemize}
+\item Specifies the number of threads to be used for estimation. Default value is maximum number of threads available on the machine.
+\end{DoxyItemize}
+\item dbglvl
+\begin{DoxyItemize}
+\item Specifies the debug level. The default value turns on info and timing.
+\end{DoxyItemize}
+\item help
+\begin{DoxyItemize}
+\item Prints the parameter details.
+\end{DoxyItemize}
+\end{DoxyItemize}\hypertarget{index_Citing}{}\section{Citing}\label{index_Citing}
+If you use any part of this library in your research, please cite it using the following Bib\+Tex entry\+:
+
+\begin{DoxyVerb}@online{slim,
+  title = {{SLIM}: Sparse LInear Model library},
+  author = {Ning, Xia and Nikolakopoulos, Athanasios N. and Shui, Zeren and Sharma, Mohit and Karypis, George},
+  url = {https://github.com/KarypisLab/SLIM},
+  publisher = {GitHub},
+  journal = {GitHub Repository},
+  year = {2019},
+}
+\end{DoxyVerb}
+\hypertarget{index_contact}{}\section{Credits \& Contact Information}\label{index_contact}
+S\+L\+IM was written by George Karypis with contributions by Xia Ning, Athanasios N. Nikolakopoulos, Zeren Shui and Mohit Sharma.
+
+If you encounter any problems or have any suggestions, please contact George Karypis at \href{mailto:karypis@cs.umn.edu}{\texttt{ karypis@cs.\+umn.\+edu}}.\hypertarget{index_license}{}\section{Copyright \& License Notice}\label{index_license}
+Copyright 2019, Regents of the University of Minnesota
+
+Licensed under the Apache License, Version 2.\+0 (the \char`\"{}\+License\char`\"{}); you may not use this file except in compliance with the License. You may obtain a copy of the License at
+
+\href{http://www.apache.org/licenses/LICENSE-2.0}{\texttt{ http\+://www.\+apache.\+org/licenses/\+L\+I\+C\+E\+N\+S\+E-\/2.\+0}}
+
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an \char`\"{}\+A\+S I\+S\char`\"{} B\+A\+S\+IS, W\+I\+T\+H\+O\+UT W\+A\+R\+R\+A\+N\+T\+I\+ES OR C\+O\+N\+D\+I\+T\+I\+O\+NS OF A\+NY K\+I\+ND, either express or implied. See the License for the specific language governing permissions and limitations under the License. 

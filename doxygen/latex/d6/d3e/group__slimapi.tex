@@ -1,0 +1,202 @@
+\hypertarget{group__slimapi}{}\section{Functions for using the S\+L\+IM library}
+\label{group__slimapi}\index{Functions for using the SLIM library@{Functions for using the SLIM library}}
+
+
+\subsection{Detailed Description}
+This is the set of methods that can used from S\+L\+IM library. \subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+slim\+\_\+t $\ast$ \mbox{\hyperlink{group__slimapi_ga9c72d34ab6c2ba2b23d9d42ecee601ad}{S\+L\+I\+M\+\_\+\+Learn}} (int32\+\_\+t nrows, ssize\+\_\+t $\ast$rowptr, int32\+\_\+t $\ast$rowind, float $\ast$rowval, int32\+\_\+t $\ast$ioptions, double $\ast$doptions, slim\+\_\+t $\ast$imodel, int32\+\_\+t $\ast$r\+\_\+status)
+\begin{DoxyCompactList}\small\item\em Entry point for the model estimation routine. It uses the sparse matrix in C\+SR format. \end{DoxyCompactList}\item 
+int32\+\_\+t \mbox{\hyperlink{group__slimapi_gadfd1f913a1551b8368bb3fae0e822b11}{S\+L\+I\+M\+\_\+\+Get\+TopN}} (slim\+\_\+t $\ast$model, int32\+\_\+t nratings, int32\+\_\+t $\ast$itemids, float $\ast$ratings, int32\+\_\+t $\ast$ioptions, int32\+\_\+t nrcmds, int32\+\_\+t $\ast$rids, float $\ast$rscores)
+\begin{DoxyCompactList}\small\item\em get Top-\/N recommendations given a historical rating profile \end{DoxyCompactList}\item 
+int32\+\_\+t \mbox{\hyperlink{group__slimapi_ga1965cf3d8e4bb9dadbbea1d833f14cea}{S\+L\+I\+M\+\_\+i\+Set\+Defaults}} (int32\+\_\+t $\ast$options)
+\begin{DoxyCompactList}\small\item\em Sets the default value (-\/1) for passed options. \end{DoxyCompactList}\item 
+int32\+\_\+t \mbox{\hyperlink{group__slimapi_gabc2c211b672d060de71e4806b873608c}{S\+L\+I\+M\+\_\+d\+Set\+Defaults}} (double $\ast$options)
+\begin{DoxyCompactList}\small\item\em Sets the default value (-\/1) for passed options. \end{DoxyCompactList}\item 
+int32\+\_\+t \mbox{\hyperlink{group__slimapi_ga4a73297a1dcf82ed110a1bb349120f2a}{S\+L\+I\+M\+\_\+\+Write\+Model}} (slim\+\_\+t $\ast$model, char $\ast$filename)
+\begin{DoxyCompactList}\small\item\em Writes the model to a supplied file. \end{DoxyCompactList}\item 
+slim\+\_\+t $\ast$ \mbox{\hyperlink{group__slimapi_ga6ee60da1ee298e093723e9dfd9f21f1c}{S\+L\+I\+M\+\_\+\+Read\+Model}} (char $\ast$filename)
+\begin{DoxyCompactList}\small\item\em Reads the model from the passed file in C\+SR format. For example\+: \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{group__slimapi_ga2224ba0f1e06e728423bcf5c63da5fea}{S\+L\+I\+M\+\_\+\+Free\+Model}} (slim\+\_\+t $\ast$$\ast$r\+\_\+model)
+\begin{DoxyCompactList}\small\item\em Frees the memory allocated for the S\+L\+IM model matrix. For example\+: \end{DoxyCompactList}\item 
+int32\+\_\+t $\ast$ \mbox{\hyperlink{group__slimapi_ga05d2e5468a86da7251b57f4289701401}{S\+L\+I\+M\+\_\+\+Determine\+Head\+And\+Tail}} (int32\+\_\+t nrows, int32\+\_\+t ncols, ssize\+\_\+t $\ast$rowptr, int32\+\_\+t $\ast$rowind)
+\begin{DoxyCompactList}\small\item\em Returns an array marking as 0 the columns that belong to the head and as 1 the columns that belong to the tail. The split is based on an 50-\/50 split (head\+: the most frequent items that correspond to the 50\% of the ratings). \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+This is the set of methods that can used from S\+L\+IM library. 
+
+\subsection{Function Documentation}
+\mbox{\Hypertarget{group__slimapi_ga9c72d34ab6c2ba2b23d9d42ecee601ad}\label{group__slimapi_ga9c72d34ab6c2ba2b23d9d42ecee601ad}} 
+\index{Functions for using the SLIM library@{Functions for using the SLIM library}!SLIM\_Learn@{SLIM\_Learn}}
+\index{SLIM\_Learn@{SLIM\_Learn}!Functions for using the SLIM library@{Functions for using the SLIM library}}
+\subsubsection{\texorpdfstring{SLIM\_Learn()}{SLIM\_Learn()}}
+{\footnotesize\ttfamily slim\+\_\+t$\ast$ S\+L\+I\+M\+\_\+\+Learn (\begin{DoxyParamCaption}\item[{int32\+\_\+t}]{nrows,  }\item[{ssize\+\_\+t $\ast$}]{rowptr,  }\item[{int32\+\_\+t $\ast$}]{rowind,  }\item[{float $\ast$}]{rowval,  }\item[{int32\+\_\+t $\ast$}]{ioptions,  }\item[{double $\ast$}]{doptions,  }\item[{slim\+\_\+t $\ast$}]{imodel,  }\item[{int32\+\_\+t $\ast$}]{r\+\_\+status }\end{DoxyParamCaption})}
+
+
+
+Entry point for the model estimation routine. It uses the sparse matrix in C\+SR format. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em nrows} & number of rows in the matrix \\
+\hline
+{\em rowptr} & \mbox{[}rowptr\mbox{[}i\mbox{]}, rowptr\mbox{[}i+1\mbox{]}) points to the indices in rowind and rowval \\
+\hline
+{\em rowind} & contains the column indices of the non-\/zero elements in matrix. \\
+\hline
+{\em rowval} & contains the values of the non-\/zero elements in matrix. \\
+\hline
+{\em ioptions} & integer or boolean options to the estimation routine. \\
+\hline
+{\em doptions} & double options to the estimation routine. \\
+\hline
+{\em imodel} & if not null then it is pointer to model that will be used for initialization. \\
+\hline
+{\em r\+\_\+status} & set to 1 on success \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+sparse representation of model in C\+SR format. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{group__slimapi_gadfd1f913a1551b8368bb3fae0e822b11}\label{group__slimapi_gadfd1f913a1551b8368bb3fae0e822b11}} 
+\index{Functions for using the SLIM library@{Functions for using the SLIM library}!SLIM\_GetTopN@{SLIM\_GetTopN}}
+\index{SLIM\_GetTopN@{SLIM\_GetTopN}!Functions for using the SLIM library@{Functions for using the SLIM library}}
+\subsubsection{\texorpdfstring{SLIM\_GetTopN()}{SLIM\_GetTopN()}}
+{\footnotesize\ttfamily int32\+\_\+t S\+L\+I\+M\+\_\+\+Get\+TopN (\begin{DoxyParamCaption}\item[{slim\+\_\+t $\ast$}]{model,  }\item[{int32\+\_\+t}]{nratings,  }\item[{int32\+\_\+t $\ast$}]{itemids,  }\item[{float $\ast$}]{ratings,  }\item[{int32\+\_\+t $\ast$}]{ioptions,  }\item[{int32\+\_\+t}]{nrcmds,  }\item[{int32\+\_\+t $\ast$}]{rids,  }\item[{float $\ast$}]{rscores }\end{DoxyParamCaption})}
+
+
+
+get Top-\/N recommendations given a historical rating profile 
+
+
+\begin{DoxyParams}{Parameters}
+{\em model} & the S\+L\+IM model matrix \\
+\hline
+{\em nratings} & number of ratings in the historical profile \\
+\hline
+{\em itemids} & ids of rated items in the historical profile \\
+\hline
+{\em ratings} & ratings of items in the historical profile \\
+\hline
+{\em ioptions} & integer options passed to the routine \\
+\hline
+{\em nrcmds} & N in Top-\/N, i.\+e., size of recommendation list \\
+\hline
+{\em rids} & ids of items in the recommendation list \\
+\hline
+{\em rscores} & predicted ratings items in the recommendation list \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+size of recommendation list on success else a value $<$ 0 
+\end{DoxyReturn}
+\mbox{\Hypertarget{group__slimapi_ga1965cf3d8e4bb9dadbbea1d833f14cea}\label{group__slimapi_ga1965cf3d8e4bb9dadbbea1d833f14cea}} 
+\index{Functions for using the SLIM library@{Functions for using the SLIM library}!SLIM\_iSetDefaults@{SLIM\_iSetDefaults}}
+\index{SLIM\_iSetDefaults@{SLIM\_iSetDefaults}!Functions for using the SLIM library@{Functions for using the SLIM library}}
+\subsubsection{\texorpdfstring{SLIM\_iSetDefaults()}{SLIM\_iSetDefaults()}}
+{\footnotesize\ttfamily int32\+\_\+t S\+L\+I\+M\+\_\+i\+Set\+Defaults (\begin{DoxyParamCaption}\item[{int32\+\_\+t $\ast$}]{options }\end{DoxyParamCaption})}
+
+
+
+Sets the default value (-\/1) for passed options. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em options} & the integer array having option values \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+1 on success 
+\end{DoxyReturn}
+\mbox{\Hypertarget{group__slimapi_gabc2c211b672d060de71e4806b873608c}\label{group__slimapi_gabc2c211b672d060de71e4806b873608c}} 
+\index{Functions for using the SLIM library@{Functions for using the SLIM library}!SLIM\_dSetDefaults@{SLIM\_dSetDefaults}}
+\index{SLIM\_dSetDefaults@{SLIM\_dSetDefaults}!Functions for using the SLIM library@{Functions for using the SLIM library}}
+\subsubsection{\texorpdfstring{SLIM\_dSetDefaults()}{SLIM\_dSetDefaults()}}
+{\footnotesize\ttfamily int32\+\_\+t S\+L\+I\+M\+\_\+d\+Set\+Defaults (\begin{DoxyParamCaption}\item[{double $\ast$}]{options }\end{DoxyParamCaption})}
+
+
+
+Sets the default value (-\/1) for passed options. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em options} & the double array having option values \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+1 on success 
+\end{DoxyReturn}
+\mbox{\Hypertarget{group__slimapi_ga4a73297a1dcf82ed110a1bb349120f2a}\label{group__slimapi_ga4a73297a1dcf82ed110a1bb349120f2a}} 
+\index{Functions for using the SLIM library@{Functions for using the SLIM library}!SLIM\_WriteModel@{SLIM\_WriteModel}}
+\index{SLIM\_WriteModel@{SLIM\_WriteModel}!Functions for using the SLIM library@{Functions for using the SLIM library}}
+\subsubsection{\texorpdfstring{SLIM\_WriteModel()}{SLIM\_WriteModel()}}
+{\footnotesize\ttfamily int32\+\_\+t S\+L\+I\+M\+\_\+\+Write\+Model (\begin{DoxyParamCaption}\item[{slim\+\_\+t $\ast$}]{model,  }\item[{char $\ast$}]{filename }\end{DoxyParamCaption})}
+
+
+
+Writes the model to a supplied file. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em model} & the S\+L\+IM model matrix \\
+\hline
+{\em filename} & the name of the file to write model to in C\+SR format \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+1 on success 
+\end{DoxyReturn}
+\mbox{\Hypertarget{group__slimapi_ga6ee60da1ee298e093723e9dfd9f21f1c}\label{group__slimapi_ga6ee60da1ee298e093723e9dfd9f21f1c}} 
+\index{Functions for using the SLIM library@{Functions for using the SLIM library}!SLIM\_ReadModel@{SLIM\_ReadModel}}
+\index{SLIM\_ReadModel@{SLIM\_ReadModel}!Functions for using the SLIM library@{Functions for using the SLIM library}}
+\subsubsection{\texorpdfstring{SLIM\_ReadModel()}{SLIM\_ReadModel()}}
+{\footnotesize\ttfamily slim\+\_\+t$\ast$ S\+L\+I\+M\+\_\+\+Read\+Model (\begin{DoxyParamCaption}\item[{char $\ast$}]{filename }\end{DoxyParamCaption})}
+
+
+
+Reads the model from the passed file in C\+SR format. For example\+: 
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{slim\_t *model = \mbox{\hyperlink{group__slimapi_ga6ee60da1ee298e093723e9dfd9f21f1c}{SLIM\_ReadModel}}(input\_model\_filename);}
+\end{DoxyCode}
+ 
+\begin{DoxyParams}{Parameters}
+{\em filename} & the name of the file having model in C\+SR format \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+return the S\+L\+IM model sparse matrix in C\+SR format 
+\end{DoxyReturn}
+\mbox{\Hypertarget{group__slimapi_ga2224ba0f1e06e728423bcf5c63da5fea}\label{group__slimapi_ga2224ba0f1e06e728423bcf5c63da5fea}} 
+\index{Functions for using the SLIM library@{Functions for using the SLIM library}!SLIM\_FreeModel@{SLIM\_FreeModel}}
+\index{SLIM\_FreeModel@{SLIM\_FreeModel}!Functions for using the SLIM library@{Functions for using the SLIM library}}
+\subsubsection{\texorpdfstring{SLIM\_FreeModel()}{SLIM\_FreeModel()}}
+{\footnotesize\ttfamily void S\+L\+I\+M\+\_\+\+Free\+Model (\begin{DoxyParamCaption}\item[{slim\+\_\+t $\ast$$\ast$}]{r\+\_\+model }\end{DoxyParamCaption})}
+
+
+
+Frees the memory allocated for the S\+L\+IM model matrix. For example\+: 
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{slim\_t *model = \mbox{\hyperlink{group__slimapi_ga6ee60da1ee298e093723e9dfd9f21f1c}{SLIM\_ReadModel}}(input\_model\_filename);}
+\DoxyCodeLine{\mbox{\hyperlink{group__slimapi_ga2224ba0f1e06e728423bcf5c63da5fea}{SLIM\_FreeModel}}(\&model);}
+\end{DoxyCode}
+ 
+\begin{DoxyParams}{Parameters}
+{\em r\+\_\+model} & the S\+L\+IM model sparse matrix \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{group__slimapi_ga05d2e5468a86da7251b57f4289701401}\label{group__slimapi_ga05d2e5468a86da7251b57f4289701401}} 
+\index{Functions for using the SLIM library@{Functions for using the SLIM library}!SLIM\_DetermineHeadAndTail@{SLIM\_DetermineHeadAndTail}}
+\index{SLIM\_DetermineHeadAndTail@{SLIM\_DetermineHeadAndTail}!Functions for using the SLIM library@{Functions for using the SLIM library}}
+\subsubsection{\texorpdfstring{SLIM\_DetermineHeadAndTail()}{SLIM\_DetermineHeadAndTail()}}
+{\footnotesize\ttfamily int32\+\_\+t$\ast$ S\+L\+I\+M\+\_\+\+Determine\+Head\+And\+Tail (\begin{DoxyParamCaption}\item[{int32\+\_\+t}]{nrows,  }\item[{int32\+\_\+t}]{ncols,  }\item[{ssize\+\_\+t $\ast$}]{rowptr,  }\item[{int32\+\_\+t $\ast$}]{rowind }\end{DoxyParamCaption})}
+
+
+
+Returns an array marking as 0 the columns that belong to the head and as 1 the columns that belong to the tail. The split is based on an 50-\/50 split (head\+: the most frequent items that correspond to the 50\% of the ratings). 
+
