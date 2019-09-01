@@ -3,7 +3,7 @@
 \brief Parsing of command-line arguments
 
 \date   Started 3/10/2015
-\author George & Xia
+\author George Karypis with contributions by Xia Ning, Athanasios N. Nikolakopoulos, Zeren Shui and Mohit Sharma.
 \author Copyright 2019, Regents of the University of Minnesota
 */
 
@@ -94,7 +94,7 @@ static char helpstr[][512] = {
     "      Specifies the optimization algorithms for learning the model. ",
     "      Available options are:",
     "        admm     -  ADMM.",
-    "        cd       -  Coordinate Descent.",
+    "        cd       -  Coordinate Descent [default].",
     " ",
     "   -optTol=float",
     "      Specifies the threshold used during optimization for termination.",
@@ -105,7 +105,7 @@ static char helpstr[][512] = {
     "      The default value is 10000.",
     " ",
     "   -nrcmds=int",
-    "      Selects the number of items to recommend. The default value is 0.",
+    "      Selects the number of items to recommend. The default value is 10.",
     " ",
     "   -nthreads=int",
     "      Specifies the number of threads to be used for estimation.",
@@ -244,7 +244,7 @@ params_t *parse_cmdline(int argc, char *argv[]) {
 
   params->l12file = gk_strdup(argv[gk_optind++]);
   if (!gk_fexists(params->l12file))
-    errexit("Input l12 file %s does not exist.\n", params->l12file);
+    errexit("Input l12file %s does not exist.\n", params->l12file);
 
   return params;
 }

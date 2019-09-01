@@ -3,7 +3,7 @@
 \brief Various data structures 
 
 \date   Started 03/11/15
-\author George & Xia
+\author George Karypis with contributions by Xia Ning, Athanasios N. Nikolakopoulos, Zeren Shui and Mohit Sharma.
 \author Copyright 2019, Regents of the University of Minnesota
 */
 
@@ -19,8 +19,7 @@
 typedef struct {
   char *trnfile;      /*!< the file of historical preferences */
   char *tstfile;      /*!< the file to validate the recommendations */
-  char *l12file;      /*!< the file that contains the regularization values
-                           over which to search */
+  char *l12file;      /*!< the file that contains the regularization values over which to search */
   char *mdlfile;      /*!< the model file during prediction */
   char *outfile;      /*!< the model/predictions file */
   char *ipmdlfile;    /*!< the model file used to initialize model*/
@@ -36,8 +35,7 @@ typedef struct {
   int algo;           /*!< algorithm used for training SILM */
   int ifmt;           /*!< the input format */
   int readvals;       /*!< indicates if ratings are provided */
-  int binarize;       /*!< indicates if the ratings data will be converted to
-                           implicity feedback */
+  int binarize;       /*!< indicates if the ratings data will be converted to implicity feedback */
   int nrcmds;         /*!< the # of items to recommend */
   int dbglvl;         /*!< the debug level */
 

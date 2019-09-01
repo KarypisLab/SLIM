@@ -1,9 +1,9 @@
 /*!
 \file
-\brief  Various constant definitions
+\brief Various constant definitions
 
 \date   Started 6/10/15
-\author George & Xia
+\author George Karypis with contributions by Xia Ning, Athanasios N. Nikolakopoulos, Zeren Shui and Mohit Sharma.
 \author Copyright 2019, Regents of the University of Minnesota
 */
 

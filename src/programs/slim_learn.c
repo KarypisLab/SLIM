@@ -3,8 +3,8 @@
 \brief The model estimation stand-alone program for SLIM
 
 \date    Started 3/11/2015
-\author  Xia & George
-\copyright 2011-2015 Regents of the University of Minnesota
+\author  George Karypis with contributions by Xia Ning, Athanasios N. Nikolakopoulos, Zeren Shui and Mohit Sharma.
+\copyright 2019 Regents of the University of Minnesota
 */
 
 #include "slimbin.h"
@@ -35,9 +35,8 @@ int main(int argc, char *argv[]) {
          tmat->nrows, tmat->ncols, tmat->rowptr[tmat->nrows]);
   printf("  l1r: %.2le, l2r: %.2le, optTol: %.2le, niters: %d\n", params->l1r,
          params->l2r, params->optTol, params->niters);
-  printf("  binarize: %d, nnbrs: %d, nthreads: %d, ordered: %d, dbglvl: %d\n",
-         params->binarize, params->nnbrs, params->nthreads, params->ordered,
-         params->dbglvl);
+  printf("  binarize: %d, nnbrs: %d, nthreads: %d, dbglvl: %d\n",
+         params->binarize, params->nnbrs, params->nthreads, params->dbglvl);
   printf("  simtype: %s, mdlfile: %s\n", slim_simtypenames[params->simtype],
          params->mdlfile);
   printf("\nEstimating model...\n");
@@ -63,7 +62,6 @@ int main(int argc, char *argv[]) {
   ioptions[SLIM_OPTION_SIMTYPE] = params->simtype;
   ioptions[SLIM_OPTION_ALGO] = params->algo;
   ioptions[SLIM_OPTION_NTHREADS] = params->nthreads;
-  ioptions[SLIM_OPTION_ORDERED] = params->ordered;
   ioptions[SLIM_OPTION_MAXNITERS] = params->niters;
 
   doptions[SLIM_OPTION_L1R] = params->l1r;

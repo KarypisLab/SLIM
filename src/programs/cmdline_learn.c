@@ -3,7 +3,7 @@
 \brief Parsing of command-line arguments
 
 \date   Started 3/10/2015
-\author George & Xia
+\author George Karypis with contributions by Xia Ning, Athanasios N. Nikolakopoulos, Zeren Shui and Mohit Sharma.
 \author Copyright 2019, Regents of the University of Minnesota
 */
 
@@ -116,7 +116,7 @@ static char helpstr[][512] = {
     " ",
     "   -nthreads=int",
     "      Specifies the number of threads to be used for estimation.",
-    "      The default value is maximum number of threads available on the "
+    "      The default value is maximum number of threads available in the "
     "machine.",
     " ",
     "   -dbglvl=int",

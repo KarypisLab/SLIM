@@ -3,7 +3,7 @@
 \brief Functions that deal with setting up the matrices
 
 \date   Started 3/9/2015
-\author George & Xia
+\author George Karypis with contributions by Xia Ning, Athanasios N. Nikolakopoulos, Zeren Shui and Mohit Sharma.
 \author Copyright 2019, Regents of the University of Minnesota
 */
 
