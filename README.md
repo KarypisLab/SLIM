@@ -23,7 +23,7 @@ This package provides a C-based optimized multi-threaded implementation of SLIM 
 
 SLIM uses Git submodules to manage external dependencies. Hence, please specify the `--recursive` option while cloning the repo as follow:
 ```bash
-git clone --recursive https://github.com/George Karypis with contributions by Xia Ning, Athanasios N. Nikolakopoulos, Zeren Shui and Mohit Sharma./SLIM.git
+git clone --recursive https://github.com/KarypisLab/SLIM.git
 ```
 
 ## Building standalone SLIM binary and shared library
