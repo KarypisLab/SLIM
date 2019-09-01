@@ -175,7 +175,7 @@ following BibTex entry:
 @online{slim,
   title = {{SLIM}: Sparse LInear Model library},
   author = {Ning, Xia and Nikolakopoulos, Athanasios N. and Shui, Zeren and Sharma, Mohit and Karypis, George},
-  url = {https://github.com/George Karypis with contributions by Xia Ning, Athanasios N. Nikolakopoulos, Zeren Shui and Mohit Sharma./SLIM},
+  url = {https://github.com/KarypisLab/SLIM},
   publisher = {GitHub},
   journal = {GitHub Repository},
   year = {2019},
