@@ -3,7 +3,7 @@
 \brief Function prototypes
 
 \date   Started 3/9/2015
-\author George & Xia
+\author George Karypis with contributions by Xia Ning, Athanasios N. Nikolakopoulos, Zeren Shui and Mohit Sharma.
 \author Copyright 2019, Regents of the University of Minnesota
 */
 
@@ -24,7 +24,6 @@ int32_t CoordinateDescent(wspace_t *wspace, double *x, double *y, double *yhat, 
 /* estimate.c */
 gk_csr_t *EstimateModelADMM(params_t *params, gk_csr_t *tmat, gk_csr_t *imat);
 gk_csr_t *EstimateModelCD(params_t *params, gk_csr_t *tmat, gk_csr_t *imat);
-gk_csr_t *EstimateModelBCLS(params_t *params, gk_csr_t *tmat, gk_csr_t *imat);
 gk_csr_t *SaveModel(ssize_t tnnz, int32_t nrows, int32_t ncols, int32_t *nnzs, gk_fkv_t **lists);
 int myAprod(const int mode, const int m, const int n, const int nix, int *ix,
         double *x, double *y, void *UsrWrk);
@@ -43,15 +42,5 @@ void PrintTimers(params_t *params);
 /* neighbors.c */
 int32_t FindColumnNeighbors(params_t *params, wspace_t *wspace, gk_csr_t *mat,
             int32_t iC);
-
-/* candidates.c */
-int32_t FindColumnCandidates(params_t *params, wspace_t *wspace, gk_csr_t *mat, 
-            int32_t iC);
-
-/* usmodel.c */
-int32_t USMLearnAndPredict(params_t *params, gk_csr_t *tmat, int32_t *nrcmds,
-            int32_t **rids, float **rscores);
-gk_csr_t *ExtractUserSpecificMatrix(params_t *params, gk_csr_t *mat,
-              int32_t rid, wspace_t *wspace);
 
 #endif

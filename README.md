@@ -63,14 +63,14 @@ make install
 
 In order to use SLIM's ADMM solver, you will need to install [Intel's MKL library](https://software.intel.com/en-us/mkl). 
 
-For Ubuntu machines on which you have `sudo` privilages, we provided the `depmkl.sh` script that automates the process of obtaining and installing MKL, which can be used as follows:
+For Ubuntu machines on which you have `sudo` privileges, we provided the `depmkl.sh` script that automates the process of obtaining and installing MKL, which can be used as follows:
 
 ```bash
 bash depmkl.sh
 source ~/.bashrc 
 ```
 
-For machines on which you do not have `sudo` privilages, you should download the MKL tarball from [Intel's website](https://software.intel.com/en-us/mkl) and then install it locally using the `install.sh` script they provide. After installing it you should add `your-path-to-intel/intel/mkl/bin/mklvars.sh intel64`in your bashrc and run `source ~/.bashrc`.
+For machines on which you do not have `sudo` privileges, you should download the MKL tarball from [Intel's website](https://software.intel.com/en-us/mkl) and then install it locally using the `install.sh` script they provide. After installing it you should add `your-path-to-intel/intel/mkl/bin/mklvars.sh intel64`in your bashrc and run `source ~/.bashrc`.
 
 Next you can build and install SLIM with MKL support by running:
 
@@ -93,13 +93,13 @@ sudo apt-get install python-setuptools
 
 After building the SLIM library, follow one of the following steps to install the python-package:
 
-1. Install the python-package system-wide (this requires sudo priveleges):
+1. Install the python-package system-wide (this requires sudo privileges):
 ```bash
 cd python-package
 sudo python setup.py install
 ```
 
-2. Install the python-package only for the current user (without sudo priveleges):
+2. Install the python-package only for the current user (without sudo privileges):
 ```bash
 cd python-package
 python setup.py install --user

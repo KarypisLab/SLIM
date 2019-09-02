@@ -2,10 +2,12 @@ Sparse L\+Inear Method (S\+L\+IM) \cite{ning2011slim} is an item-\/based top-\/N
 
 This package provides a C-\/based optimized multi-\/threaded implementation of S\+L\+IM that consists of a set of command-\/line programs and a user-\/callable library for estimating and applying S\+L\+IM models as well as an easy to use Python interface.
 
-\subsection*{}\hypertarget{index_download}{}\section{Downloading S\+L\+IM}\label{index_download}
+
+
+ \hypertarget{index_download}{}\section{Downloading S\+L\+IM}\label{index_download}
 S\+L\+IM uses Git submodules to manage external dependencies. Hence, please specify the {\ttfamily -\/-\/recursive} option while cloning the repo as follow\+: 
-\begin{DoxyCode}{0}
-\DoxyCodeLine{git clone --recursive https://github.umn.edu/dminers/slim.git}
+\begin{DoxyCode}
+git clone --recursive https://github.umn.edu/dminers/slim.git
 \end{DoxyCode}
 \hypertarget{index_installation}{}\section{Building standalone S\+L\+I\+M binary and shared library}\label{index_installation}
 To build S\+L\+IM you can follow the instructions below\+:\hypertarget{index_deps}{}\subsection{Dependencies}\label{index_deps}
@@ -30,16 +32,16 @@ After building G\+Klib, you can build and install S\+L\+IM by running\+:
 make install
 \end{DoxyVerb}
 \hypertarget{index_mkl_build}{}\subsubsection{Building S\+L\+I\+M with Intel\textquotesingle{}s M\+K\+L support (optional)}\label{index_mkl_build}
-In order to use S\+L\+IM\textquotesingle{}s A\+D\+MM solver, you will need to install \href{https://software.intel.com/en-us/mkl}{\texttt{ Intel\textquotesingle{}s M\+KL library}}.
+In order to use S\+L\+IM\textquotesingle{}s A\+D\+MM solver, you will need to install \href{https://software.intel.com/en-us/mkl}{\tt Intel\textquotesingle{}s M\+KL library}.
 
-For Ubuntu machines on which you have {\ttfamily sudo} privilages, we provided the {\ttfamily depmkl.\+sh} script that automates the process of obtaining and installing M\+KL, which can be used as follows\+:
+For Ubuntu machines on which you have {\ttfamily sudo} privileges, we provided the {\ttfamily depmkl.\+sh} script that automates the process of obtaining and installing M\+KL, which can be used as follows\+:
 
 \begin{DoxyVerb}bash depmkl.sh
 source ~/.bashrc 
 \end{DoxyVerb}
 
 
-For machines on which you do not have {\ttfamily sudo} privilages, you should download the M\+KL tarball from \href{https://software.intel.com/en-us/mkl}{\texttt{ Intel\textquotesingle{}s website}} and then install it locally using the {\ttfamily install.\+sh} script they provide. After installing it you should add {\ttfamily your-\/path-\/to-\/intel/intel/mkl/bin/mklvars.\+sh intel64}in your bashrc and run {\ttfamily source $\sim$/.bashrc}.
+For machines on which you do not have {\ttfamily sudo} privileges, you should download the M\+KL tarball from \href{https://software.intel.com/en-us/mkl}{\tt Intel\textquotesingle{}s website} and then install it locally using the {\ttfamily install.\+sh} script they provide. After installing it you should add {\ttfamily your-\/path-\/to-\/intel/intel/mkl/bin/mklvars.\+sh intel64}in your bashrc and run {\ttfamily source $\sim$/.bashrc}.
 
 You can build and install S\+L\+IM with M\+KL support by running\+:
 
@@ -59,51 +61,51 @@ After building the S\+L\+IM library, follow one of the following steps to instal
 
 
 \begin{DoxyEnumerate}
-\item Install python-\/package system-\/wide (this requires sudo priveleges)\+: \begin{DoxyVerb}cd python-package
+\item Install python-\/package system-\/wide (this requires sudo privileges)\+: \begin{DoxyVerb}cd python-package
 sudo python setup.py install
 \end{DoxyVerb}
 
-\item Install python-\/package only for the current users (without sudo priveleges)\+: \begin{DoxyVerb}cd python-package
+\item Install python-\/package only for the current users (without sudo privileges)\+: \begin{DoxyVerb}cd python-package
 python setup.py install --user
 \end{DoxyVerb}
 
 \end{DoxyEnumerate}\hypertarget{index_getting_started}{}\section{Getting Started}\label{index_getting_started}
 Here are some examples to quickly try out S\+L\+IM on the sample datasets that are provided with S\+L\+IM.\hypertarget{index_python_getting_started}{}\subsection{Python}\label{index_python_getting_started}
 
-\begin{DoxyCode}{0}
-\DoxyCodeLine{\textcolor{keyword}{import} pandas \textcolor{keyword}{as} pd}
-\DoxyCodeLine{\textcolor{keyword}{from} SLIM \textcolor{keyword}{import} SLIM, SLIMatrix}
-\DoxyCodeLine{}
-\DoxyCodeLine{\textcolor{comment}{\#read training data stored as triplets <user> <item> <rating>}}
-\DoxyCodeLine{traindata = pd.read\_csv(\textcolor{stringliteral}{'../test/AutomotiveTrain.ijv'}, delimiter = \textcolor{stringliteral}{' '}, header=\textcolor{keywordtype}{None})}
-\DoxyCodeLine{trainmat = SLIMatrix(traindata)}
-\DoxyCodeLine{}
-\DoxyCodeLine{\textcolor{comment}{\#set up parameters to learn model, e.g., use Coordinate Descent with L1 and L2}}
-\DoxyCodeLine{\textcolor{comment}{\#regularization}}
-\DoxyCodeLine{params = \{\textcolor{stringliteral}{'algo'}:\textcolor{stringliteral}{'cd'}, \textcolor{stringliteral}{'nthreads'}:2, \textcolor{stringliteral}{'l1r'}:1., \textcolor{stringliteral}{'l2r'}:1.\}}
-\DoxyCodeLine{}
-\DoxyCodeLine{\textcolor{comment}{\#learn the model using training data and desired parameters}}
-\DoxyCodeLine{model = SLIM()}
-\DoxyCodeLine{model.train(params, trnmat)}
-\DoxyCodeLine{}
-\DoxyCodeLine{\textcolor{comment}{\#read test data having candidate items for users}}
-\DoxyCodeLine{testdata = pd.read\_csv(\textcolor{stringliteral}{'../test/AutomotiveTest.ijv'}, delimiter = \textcolor{stringliteral}{' '}, header=\textcolor{keywordtype}{None})}
-\DoxyCodeLine{\textcolor{comment}{\#NOTE: model object is passed as an argument while generating test matrix}}
-\DoxyCodeLine{testmat = SLIMatrix(testdata, model)}
-\DoxyCodeLine{}
-\DoxyCodeLine{\textcolor{comment}{\#generate top-10 recommendations}}
-\DoxyCodeLine{prediction\_res = model.predict(testmat, nrcmds=10, outfile = \textcolor{stringliteral}{'output.txt'})}
-\DoxyCodeLine{}
-\DoxyCodeLine{\textcolor{comment}{\#dump the model to files on disk}}
-\DoxyCodeLine{model.save\_model(modelfname=\textcolor{stringliteral}{'model.csr'}, \textcolor{comment}{\# filename to save the model as a csr matrix}}
-\DoxyCodeLine{                 mapfname=\textcolor{stringliteral}{'map.csr'} \textcolor{comment}{\# filename to save the item map}}
-\DoxyCodeLine{                )}
-\DoxyCodeLine{}
-\DoxyCodeLine{\textcolor{comment}{\#load the model from from disk}}
-\DoxyCodeLine{model\_new = SLIM()}
-\DoxyCodeLine{model\_new.load\_model(modelfname=\textcolor{stringliteral}{'model.csr'}, \textcolor{comment}{\# filename of the model}}
-\DoxyCodeLine{                 mapfname=\textcolor{stringliteral}{'map.csr'} \textcolor{comment}{\# filename of the item map}}
-\DoxyCodeLine{                )}
+\begin{DoxyCode}
+\textcolor{keyword}{import} pandas \textcolor{keyword}{as} pd
+\textcolor{keyword}{from} SLIM \textcolor{keyword}{import} SLIM, SLIMatrix
+
+\textcolor{comment}{#read training data stored as triplets <user> <item> <rating>}
+traindata = pd.read\_csv(\textcolor{stringliteral}{'../test/AutomotiveTrain.ijv'}, delimiter = \textcolor{stringliteral}{' '}, header=\textcolor{keywordtype}{None})
+trainmat = SLIMatrix(traindata)
+
+\textcolor{comment}{#set up parameters to learn model, e.g., use Coordinate Descent with L1 and L2}
+\textcolor{comment}{#regularization}
+params = \{\textcolor{stringliteral}{'algo'}:\textcolor{stringliteral}{'cd'}, \textcolor{stringliteral}{'nthreads'}:2, \textcolor{stringliteral}{'l1r'}:1., \textcolor{stringliteral}{'l2r'}:1.\}
+
+\textcolor{comment}{#learn the model using training data and desired parameters}
+model = SLIM()
+model.train(params, trnmat)
+
+\textcolor{comment}{#read test data having candidate items for users}
+testdata = pd.read\_csv(\textcolor{stringliteral}{'../test/AutomotiveTest.ijv'}, delimiter = \textcolor{stringliteral}{' '}, header=\textcolor{keywordtype}{None})
+\textcolor{comment}{#NOTE: model object is passed as an argument while generating test matrix}
+testmat = SLIMatrix(testdata, model)
+
+\textcolor{comment}{#generate top-10 recommendations}
+prediction\_res = model.predict(testmat, nrcmds=10, outfile = \textcolor{stringliteral}{'output.txt'})
+
+\textcolor{comment}{#dump the model to files on disk}
+model.save\_model(modelfname=\textcolor{stringliteral}{'model.csr'}, \textcolor{comment}{# filename to save the model as a csr matrix}
+                 mapfname=\textcolor{stringliteral}{'map.csr'} \textcolor{comment}{# filename to save the item map}
+                )
+
+\textcolor{comment}{#load the model from from disk}
+model\_new = SLIM()
+model\_new.load\_model(modelfname=\textcolor{stringliteral}{'model.csr'}, \textcolor{comment}{# filename of the model}
+                 mapfname=\textcolor{stringliteral}{'map.csr'} \textcolor{comment}{# filename of the item map}
+                )
 \end{DoxyCode}
 
 
@@ -167,7 +169,7 @@ The following optional parameters can be provided to the {\ttfamily slim\+\_\+le
 \item Specifies the optimization algorithms for learning the model. Available options are\+:
 \begin{DoxyItemize}
 \item admm -\/ A\+D\+MM.
-\item cd -\/ Coordinate Descent.
+\item cd -\/ Coordinate Descent \mbox{[}default\mbox{]}.
 \end{DoxyItemize}
 \end{DoxyItemize}
 \item opt\+Tol \mbox{[}default=1e-\/7\mbox{]}
@@ -205,11 +207,11 @@ If you use any part of this library in your research, please cite it using the f
 \hypertarget{index_contact}{}\section{Credits \& Contact Information}\label{index_contact}
 S\+L\+IM was written by George Karypis with contributions by Xia Ning, Athanasios N. Nikolakopoulos, Zeren Shui and Mohit Sharma.
 
-If you encounter any problems or have any suggestions, please contact George Karypis at \href{mailto:karypis@cs.umn.edu}{\texttt{ karypis@cs.\+umn.\+edu}}.\hypertarget{index_license}{}\section{Copyright \& License Notice}\label{index_license}
+If you encounter any problems or have any suggestions, please contact George Karypis at \href{mailto:karypis@cs.umn.edu}{\tt karypis@cs.\+umn.\+edu}.\hypertarget{index_license}{}\section{Copyright \& License Notice}\label{index_license}
 Copyright 2019, Regents of the University of Minnesota
 
 Licensed under the Apache License, Version 2.\+0 (the \char`\"{}\+License\char`\"{}); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 
-\href{http://www.apache.org/licenses/LICENSE-2.0}{\texttt{ http\+://www.\+apache.\+org/licenses/\+L\+I\+C\+E\+N\+S\+E-\/2.\+0}}
+\href{http://www.apache.org/licenses/LICENSE-2.0}{\tt http\+://www.\+apache.\+org/licenses/\+L\+I\+C\+E\+N\+S\+E-\/2.\+0}
 
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an \char`\"{}\+A\+S I\+S\char`\"{} B\+A\+S\+IS, W\+I\+T\+H\+O\+UT W\+A\+R\+R\+A\+N\+T\+I\+ES OR C\+O\+N\+D\+I\+T\+I\+O\+NS OF A\+NY K\+I\+ND, either express or implied. See the License for the specific language governing permissions and limitations under the License. 

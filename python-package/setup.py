@@ -18,13 +18,12 @@ if platform.system().startswith('Darwin'):
     EXTENSION = 'dylib'
 
 SHARED_LIBRARY_PATH = '../build/' + PLATFORM_SYSTEM + \
-                        '-x86_64/src/libslim/libslim.' + EXTENSION
+    '-x86_64/src/libslim/libslim.' + EXTENSION
 
 setup(
     name='SLIM',
     version='2.0.0',
-    author=
-    'George Karypis, Athanasios N. Nikolakopoulos, Xia Ning, Mohit Sharma, Zeren Shui',
+    author='George Karypis, Athanasios N. Nikolakopoulos, Xia Ning, Mohit Sharma, Zeren Shui',
     author_email='karypis@cs.umn.edu',
     install_requires=['numpy', 'scipy'],
     packages=['SLIM'],

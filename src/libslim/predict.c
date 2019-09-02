@@ -3,7 +3,7 @@
 \brief Various prediction functions
 
 \date   Started 3/10/2015
-\author George & Xia
+\author George Karypis with contributions by Xia Ning, Athanasios N. Nikolakopoulos, Zeren Shui and Mohit Sharma.
 \author Copyright 2019, Regents of the University of Minnesota
 */
 

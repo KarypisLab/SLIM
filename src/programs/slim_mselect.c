@@ -3,8 +3,8 @@
 \brief The model selection stand-alone program for SLIM
 
 \date    Started 3/11/2015
-\author  Xia & George
-\copyright 2011-2015 Regents of the University of Minnesota
+\author  George Karypis with contributions by Xia Ning, Athanasios N. Nikolakopoulos, Zeren Shui and Mohit Sharma.
+\copyright 2019 Regents of the University of Minnesota
 */
 
 #include "slimbin.h"
