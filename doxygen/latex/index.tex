@@ -34,14 +34,14 @@ make install
 \hypertarget{index_mkl_build}{}\subsubsection{Building S\+L\+I\+M with Intel\textquotesingle{}s M\+K\+L support (optional)}\label{index_mkl_build}
 In order to use S\+L\+IM\textquotesingle{}s A\+D\+MM solver, you will need to install \href{https://software.intel.com/en-us/mkl}{\tt Intel\textquotesingle{}s M\+KL library}.
 
-For Ubuntu machines on which you have {\ttfamily sudo} privilages, we provided the {\ttfamily depmkl.\+sh} script that automates the process of obtaining and installing M\+KL, which can be used as follows\+:
+For Ubuntu machines on which you have {\ttfamily sudo} privileges, we provided the {\ttfamily depmkl.\+sh} script that automates the process of obtaining and installing M\+KL, which can be used as follows\+:
 
 \begin{DoxyVerb}bash depmkl.sh
 source ~/.bashrc 
 \end{DoxyVerb}
 
 
-For machines on which you do not have {\ttfamily sudo} privilages, you should download the M\+KL tarball from \href{https://software.intel.com/en-us/mkl}{\tt Intel\textquotesingle{}s website} and then install it locally using the {\ttfamily install.\+sh} script they provide. After installing it you should add {\ttfamily your-\/path-\/to-\/intel/intel/mkl/bin/mklvars.\+sh intel64}in your bashrc and run {\ttfamily source $\sim$/.bashrc}.
+For machines on which you do not have {\ttfamily sudo} privileges, you should download the M\+KL tarball from \href{https://software.intel.com/en-us/mkl}{\tt Intel\textquotesingle{}s website} and then install it locally using the {\ttfamily install.\+sh} script they provide. After installing it you should add {\ttfamily your-\/path-\/to-\/intel/intel/mkl/bin/mklvars.\+sh intel64}in your bashrc and run {\ttfamily source $\sim$/.bashrc}.
 
 You can build and install S\+L\+IM with M\+KL support by running\+:
 
@@ -61,11 +61,11 @@ After building the S\+L\+IM library, follow one of the following steps to instal
 
 
 \begin{DoxyEnumerate}
-\item Install python-\/package system-\/wide (this requires sudo priveleges)\+: \begin{DoxyVerb}cd python-package
+\item Install python-\/package system-\/wide (this requires sudo privileges)\+: \begin{DoxyVerb}cd python-package
 sudo python setup.py install
 \end{DoxyVerb}
 
-\item Install python-\/package only for the current users (without sudo priveleges)\+: \begin{DoxyVerb}cd python-package
+\item Install python-\/package only for the current users (without sudo privileges)\+: \begin{DoxyVerb}cd python-package
 python setup.py install --user
 \end{DoxyVerb}
 
@@ -169,7 +169,7 @@ The following optional parameters can be provided to the {\ttfamily slim\+\_\+le
 \item Specifies the optimization algorithms for learning the model. Available options are\+:
 \begin{DoxyItemize}
 \item admm -\/ A\+D\+MM.
-\item cd -\/ Coordinate Descent.
+\item cd -\/ Coordinate Descent \mbox{[}default\mbox{]}.
 \end{DoxyItemize}
 \end{DoxyItemize}
 \item opt\+Tol \mbox{[}default=1e-\/7\mbox{]}

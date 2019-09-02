@@ -144,10 +144,10 @@ make install
 </pre><h3><a class="anchor" id="mkl_build"></a>
 Building SLIM with Intel's MKL support (optional)</h3>
 <p>In order to use SLIM's ADMM solver, you will need to install <a href="https://software.intel.com/en-us/mkl">Intel's MKL library</a>.</p>
-<p>For Ubuntu machines on which you have <code>sudo</code> privilages, we provided the <code>depmkl.sh</code> script that automates the process of obtaining and installing MKL, which can be used as follows:</p>
+<p>For Ubuntu machines on which you have <code>sudo</code> privileges, we provided the <code>depmkl.sh</code> script that automates the process of obtaining and installing MKL, which can be used as follows:</p>
 <pre class="fragment">bash depmkl.sh
 source ~/.bashrc 
-</pre><p>For machines on which you do not have <code>sudo</code> privilages, you should download the MKL tarball from <a href="https://software.intel.com/en-us/mkl">Intel's website</a> and then install it locally using the <code>install.sh</code> script they provide. After installing it you should add <code>your-path-to-intel/intel/mkl/bin/mklvars.sh intel64</code>in your bashrc and run <code>source ~/.bashrc</code>.</p>
+</pre><p>For machines on which you do not have <code>sudo</code> privileges, you should download the MKL tarball from <a href="https://software.intel.com/en-us/mkl">Intel's website</a> and then install it locally using the <code>install.sh</code> script they provide. After installing it you should add <code>your-path-to-intel/intel/mkl/bin/mklvars.sh intel64</code>in your bashrc and run <code>source ~/.bashrc</code>.</p>
 <p>You can build and install SLIM with MKL support by running:</p>
 <pre class="fragment">make config shared=1 cc=gcc cxx=gcc with_mkl=1 prefix=~/.local
 make install
@@ -158,10 +158,10 @@ Python Package installation</h1>
 <pre class="fragment">sudo apt-get install python-setuptools
 </pre><p>After building the SLIM library, follow one of the following steps to install the python-package:</p>
 <ol type="1">
-<li>Install python-package system-wide (this requires sudo priveleges): <pre class="fragment">cd python-package
+<li>Install python-package system-wide (this requires sudo privileges): <pre class="fragment">cd python-package
 sudo python setup.py install
 </pre></li>
-<li>Install python-package only for the current users (without sudo priveleges): <pre class="fragment">cd python-package
+<li>Install python-package only for the current users (without sudo privileges): <pre class="fragment">cd python-package
 python setup.py install --user
 </pre></li>
 </ol>
@@ -219,7 +219,7 @@ SLIM parameters</h1>
 <li>algo [default=cd]<ul>
 <li>Specifies the optimization algorithms for learning the model. Available options are:<ul>
 <li>admm - ADMM.</li>
-<li>cd - Coordinate Descent.</li>
+<li>cd - Coordinate Descent [default].</li>
 </ul>
 </li>
 </ul>
