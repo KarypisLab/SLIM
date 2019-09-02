@@ -57,14 +57,14 @@ make install
 
 In order to use SLIM's ADMM solver, you will need to install [Intel's MKL library](https://software.intel.com/en-us/mkl). 
 
-For Ubuntu machines on which you have `sudo` privilages, we provided the `depmkl.sh` script that automates the process of obtaining and installing MKL, which can be used as follows:
+For Ubuntu machines on which you have `sudo` privileges, we provided the `depmkl.sh` script that automates the process of obtaining and installing MKL, which can be used as follows:
 
 @verbatim  
 bash depmkl.sh
 source ~/.bashrc 
 @endverbatim
 
-For machines on which you do not have `sudo` privilages, you should download the
+For machines on which you do not have `sudo` privileges, you should download the
 MKL tarball from [Intel's website](https://software.intel.com/en-us/mkl) and then install it locally using the `install.sh` script they provide. After installing it you should add `your-path-to-intel/intel/mkl/bin/mklvars.sh intel64`in your bashrc and run `source ~/.bashrc`.
 
 You can build and install SLIM with MKL support by running:
@@ -87,13 +87,13 @@ sudo apt-get install python-setuptools
 
 After building the SLIM library, follow one of the following steps to install the python-package:
 
-1. Install python-package system-wide (this requires sudo priveleges):
+1. Install python-package system-wide (this requires sudo privileges):
 @verbatim  
 cd python-package
 sudo python setup.py install
 @endverbatim  
 
-2. Install python-package only for the current users (without sudo priveleges):
+2. Install python-package only for the current users (without sudo privileges):
 @verbatim  
 cd python-package
 python setup.py install --user
@@ -210,7 +210,7 @@ for the users.
        - algo [default=cd]
           - Specifies the optimization algorithms for learning the model. Available options are:
             - admm     -  ADMM.
-            - cd       -  Coordinate Descent.
+            - cd       -  Coordinate Descent [default].
     
        - optTol [default=1e-7]
           - Specifies the threshold used during optimization for termination.

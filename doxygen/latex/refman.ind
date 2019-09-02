@@ -1,0 +1,36 @@
+\begin{theindex}
+
+  \item {Functions for using the S\+L\+I\+M library}, \hyperpage{7}
+    \subitem {S\+L\+I\+M\+\_\+\+Free\+Model}, \hyperpage{11}
+    \subitem {S\+L\+I\+M\+\_\+\+Get\+TopN}, \hyperpage{8}
+    \subitem {S\+L\+I\+M\+\_\+\+Learn}, \hyperpage{8}
+    \subitem {S\+L\+I\+M\+\_\+\+Read\+Model}, \hyperpage{10}
+    \subitem {S\+L\+I\+M\+\_\+\+Write\+Model}, \hyperpage{10}
+    \subitem {S\+L\+I\+M\+\_\+d\+Set\+Defaults}, \hyperpage{9}
+    \subitem {S\+L\+I\+M\+\_\+i\+Set\+Defaults}, \hyperpage{9}
+
+  \indexspace
+
+  \item {S\+L\+I\+M\+\_\+\+Free\+Model}
+    \subitem {Functions for using the S\+L\+I\+M library}, 
+		\hyperpage{11}
+  \item {S\+L\+I\+M\+\_\+\+Get\+TopN}
+    \subitem {Functions for using the S\+L\+I\+M library}, 
+		\hyperpage{8}
+  \item {S\+L\+I\+M\+\_\+\+Learn}
+    \subitem {Functions for using the S\+L\+I\+M library}, 
+		\hyperpage{8}
+  \item {S\+L\+I\+M\+\_\+\+Read\+Model}
+    \subitem {Functions for using the S\+L\+I\+M library}, 
+		\hyperpage{10}
+  \item {S\+L\+I\+M\+\_\+\+Write\+Model}
+    \subitem {Functions for using the S\+L\+I\+M library}, 
+		\hyperpage{10}
+  \item {S\+L\+I\+M\+\_\+d\+Set\+Defaults}
+    \subitem {Functions for using the S\+L\+I\+M library}, 
+		\hyperpage{9}
+  \item {S\+L\+I\+M\+\_\+i\+Set\+Defaults}
+    \subitem {Functions for using the S\+L\+I\+M library}, 
+		\hyperpage{9}
+
+\end{theindex}
