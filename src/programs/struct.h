@@ -31,7 +31,7 @@ typedef struct {
   double optTol; /*!< optimality tolerance */
   int niters;  /*!< max number of iterations allowed for optimization solvers */
   int ordered; /*!< if the order of the items is significant */
-  int algo;    /*!< algorithm used for training SILM */
+  int algo;    /*!< algorithm used for training SLIM */
   int ifmt;    /*!< the input format */
   int readvals; /*!< indicates if ratings are provided */
   int binarize; /*!< indicates if the ratings data will be converted to implicit
