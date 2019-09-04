@@ -51,5 +51,5 @@ endif()
 # Recursively look for CMakeLists.txt in subdirs.
 add_subdirectory("include")
 add_subdirectory("src/libslim")
-add_subdirectory("src/programs")
+# add_subdirectory("src/programs")
 
