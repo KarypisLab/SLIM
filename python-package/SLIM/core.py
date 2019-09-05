@@ -93,19 +93,19 @@ def check_obj_params(params):
         params.nrcmds = 10
 
     if hasattr(params, 'l1r'):
-        if isinstance(params.l1r, (int, float)) or params.l1r < 0:
+        if not isinstance(params.l1r, (int, float)) or params.l1r < 0:
             raise TypeError("Please provide non-negative value for l1r.")
     else:
         params.l1r = 1.
 
     if hasattr(params, 'l2r'):
-        if isinstance(params.l2r, (int, float)) or params.l2r < 0:
+        if not isinstance(params.l2r, (int, float)) or params.l2r < 0:
             raise TypeError("Please provide non-negative value for l2r.")
     else:
         params.l2r = 1.
 
     if hasattr(params, 'optTol'):
-        if isinstance(params.optTol, (int, float)) or params.optTol < 0:
+        if not isinstance(params.optTol, (int, float)) or params.optTol < 0:
             raise TypeError("Please provide non-negative value for optTol.")
     else:
         params.optTol = 1e-7
@@ -124,7 +124,7 @@ def check_dict_params(params):
 
     # sannity check for the parameters
     if 'dbglvl' in params:
-        if type(params['dbglvl']) != int or params['dbglvl'] <= 0:
+        if type(params['dbglvl']) != int or params['dbglvl'] < 0:
             raise TypeError(
                 "Please select dbglvl from {0, 1, 2, 4, 16, 2048}.")
     else:
@@ -171,19 +171,19 @@ def check_dict_params(params):
         params['nrcmds'] = 10
 
     if 'l1r' in params:
-        if isinstance(params['l1r'], (int, float)) or params['l1r'] < 0:
+        if not isinstance(params['l1r'], (int, float)) or params['l1r'] < 0:
             raise TypeError("Please provide non-negative value for l1r.")
     else:
         params['l1r'] = 1.
 
     if 'l2r' in params:
-        if isinstance(params['l2r'], (int, float)) or params['l2r'] < 0:
+        if not isinstance(params['l2r'], (int, float)) or params['l2r'] < 0:
             raise TypeError("Please provide non-negative value for l2r.")
     else:
         params['l2r'] = 1.
 
     if 'optTol' in params:
-        if isinstance(params['optTol'], (int, float)) or params['optTol'] < 0:
+        if not isinstance(params['optTol'], (int, float)) or params['optTol'] < 0:
             raise TypeError("Please provide non-negative value for optTol.")
     else:
         params['optTol'] = 1e-7
