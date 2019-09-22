@@ -171,7 +171,10 @@ int32_t Py_SLIM_Mselect(slim_t *trnhandle, slim_t *tsthandle, int32_t *ioptions,
                         double *bestl1AR, double *bestl2AR, double *bestHRAR,
                         double *bestARAR) {
   ssize_t zI;
-  int32_t iU, iL1, iL2, iR, rstatus, nrcmds, nvalid, nhits[3], ntrue[2];
+  int32_t iU, iL1, iL2, iR, rstatus, nrcmds, nhits[3], ntrue[2];
+  int32_t nvalid, nvalid_head, nvalid_tail;
+  float all_hr, head_hr, tail_hr;
+  int is_tail_u, is_head_u;
   params_t params;
   gk_csr_t *trnmat, *tstmat, *trn, *tst;
   slim_t *model = NULL, *imodel = NULL;
@@ -259,9 +262,10 @@ int32_t Py_SLIM_Mselect(slim_t *trnhandle, slim_t *tsthandle, int32_t *ioptions,
       gk_i32set(trnmat->ncols, -1, rmarker);
       hr[0] = hr[1] = hr[2] = 0.0;
       arhr = 0.0;
-      nvalid = 0;
+      nvalid = nvalid_head = nvalid_tail = 0;
 
       for (iU = 0; iU < trnmat->nrows; iU++) {
+        if (tstmat->rowptr[iU + 1] - tstmat->rowptr[iU] < 1) continue;
         nrcmds = SLIM_GetTopN(
             model, trnmat->rowptr[iU + 1] - trnmat->rowptr[iU],
             trnmat->rowind + trnmat->rowptr[iU],
@@ -269,13 +273,29 @@ int32_t Py_SLIM_Mselect(slim_t *trnhandle, slim_t *tsthandle, int32_t *ioptions,
             ioptions, params.nrcmds, rids, rscores);
 
         nvalid += (nrcmds != SLIM_ERROR ? 1 : 0);
+        is_tail_u = is_head_u = 0;
         larhr = baseline = 0.0;
         ntrue[0] = ntrue[1] = 0;
 
         for (zI = tstmat->rowptr[iU]; zI < tstmat->rowptr[iU + 1]; zI++) {
           rmarker[tstmat->rowind[zI]] = iU;
           ntrue[fmarker[tstmat->rowind[zI]]]++;
+          if (fmarker[tstmat->rowind[zI]]) {
+            // tail
+            is_tail_u = 1;
+          } else {
+            // head
+            is_head_u = 1;
+          }
           baseline += 1.0 / (1.0 + zI - tstmat->rowptr[iU]);
+        }
+
+        if (is_tail_u) {
+          nvalid_tail++;
+        }
+
+        if (is_head_u) {
+          nvalid_head++;
         }
 
         nhits[0] = nhits[1] = nhits[2] = 0;
@@ -293,12 +313,19 @@ int32_t Py_SLIM_Mselect(slim_t *trnhandle, slim_t *tsthandle, int32_t *ioptions,
         arhr += larhr / baseline;
       }
 
+      all_hr = nvalid > 0 ? hr[2] / nvalid : 0;
+      head_hr = nvalid_head > 0 ? hr[0] / nvalid_head : 0;
+      tail_hr = nvalid_tail > 0 ? hr[1] / nvalid_tail : 0;
+      arhr = nvalid > 0 ? arhr / nvalid : 0;
+
       smat = (gk_csr_t *)model;
-      printf("l1r: %.2le l2r: %.2le nnz: %7zd nvalid: %" PRId32
-             " hrs: %.4f %.4f %.5f arhr: %.4f time: %.2lf\n",
+      printf("\nnvalid: %d nvalid_head: %d nvalid_tail: %d", nvalid, nvalid_head,
+             nvalid_tail);
+      printf("\nl1r: %.2le l2r: %.2le nnz: %7zd"
+             " hr: %.4f hr_head: %.4f hr_tail: %.4f arhr: %.4f time: %.2lf\n",
              doptions[SLIM_OPTION_L1R], doptions[SLIM_OPTION_L2R],
-             smat->rowptr[smat->nrows], nvalid, hr[2] / nvalid, hr[0] / nvalid,
-             hr[1] / nvalid, arhr / nvalid, gk_getwctimer(timer));
+             smat->rowptr[smat->nrows], all_hr, head_hr, tail_hr, arhr,
+             gk_getwctimer(timer));
 
       if (nvalid < 1) {
         *bestl1HR = doptions[SLIM_OPTION_L1R];
@@ -308,16 +335,16 @@ int32_t Py_SLIM_Mselect(slim_t *trnhandle, slim_t *tsthandle, int32_t *ioptions,
 
       /* model selection in hr */
       if (hr[2] / nvalid > *bestHRHR) {
-        *bestHRHR = hr[2] / nvalid;
-        *bestARHR = arhr / nvalid;
+        *bestHRHR = all_hr;
+        *bestARHR = arhr;
         *bestl1HR = doptions[SLIM_OPTION_L1R];
         *bestl2HR = doptions[SLIM_OPTION_L2R];
       }
 
       /* model selection in ar */
       if (arhr / nvalid > *bestARAR) {
-        *bestHRAR = hr[2] / nvalid;
-        *bestARAR = arhr / nvalid;
+        *bestHRAR = all_hr;
+        *bestARAR = arhr;
         *bestl1AR = doptions[SLIM_OPTION_L1R];
         *bestl2AR = doptions[SLIM_OPTION_L2R];
       }
