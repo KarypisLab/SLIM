@@ -126,6 +126,7 @@ int main(int argc, char *argv[]) {
     nvalid = nvalid_head = nvalid_tail = 0;
 
     for (iU = 0; iU < trnmat->nrows; iU++) {
+      if (tstmat->rowptr[iU + 1] - tstmat->rowptr[iU] < 1) continue;
       nrcmds = SLIM_GetTopN(
           model, trnmat->rowptr[iU + 1] - trnmat->rowptr[iU],
           trnmat->rowind + trnmat->rowptr[iU],

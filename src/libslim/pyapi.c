@@ -334,7 +334,7 @@ int32_t Py_SLIM_Mselect(slim_t *trnhandle, slim_t *tsthandle, int32_t *ioptions,
       }
 
       /* model selection in hr */
-      if (hr[2] / nvalid > *bestHRHR) {
+      if (all_hr > *bestHRHR) {
         *bestHRHR = all_hr;
         *bestARHR = arhr;
         *bestl1HR = doptions[SLIM_OPTION_L1R];
@@ -342,7 +342,7 @@ int32_t Py_SLIM_Mselect(slim_t *trnhandle, slim_t *tsthandle, int32_t *ioptions,
       }
 
       /* model selection in ar */
-      if (arhr / nvalid > *bestARAR) {
+      if (arhr > *bestARAR) {
         *bestHRAR = all_hr;
         *bestARAR = arhr;
         *bestl1AR = doptions[SLIM_OPTION_L1R];
