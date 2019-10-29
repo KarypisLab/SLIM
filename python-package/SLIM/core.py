@@ -516,12 +516,15 @@ class SLIM(object):
             raise RuntimeError(
                 'Something went wrong with model estimation or evaluation when l1=%.4f, l2=%.4f. Please check the input matrix.' % (bestl1HR, bestl2HR))
 
-    def predict(self, data, nrcmds=10, outfile=None):
+    def predict(self, data, nrcmds=10, outfile=None, negitems=None, nnegs=0):
         ''' @brief  predict using the learned SLIM model
-            @params data:    a SLIMatrix object to be predicted
-                    nrcmds:  number of recommended items for each user
-                    outfile: a filename to dump the topn lists
-            @return an numpy ndarray of shape (nUsers, nrcmds)
+            @params data:     a SLIMatrix object to be predicted
+                    nrcmds:   number of recommended items for each user
+                    outfile:  a filename to dump the topn lists
+                    negitems: negative items
+                    nnegs:    number of negative items
+            @return out:        an numpy ndarray of shape (nUsers, nrcmds) with recommended item ids
+                    outscores:  an numpy ndarray of shape (nUsers, nrcmds) with recommended scores of the corresponding items
         '''
         if self.ismodel != SLIM_OK:
             raise TypeError("Model not found. Please train a model.")
@@ -531,29 +534,79 @@ class SLIM(object):
 
         # initialize the result matrix
         res = np.full(data.nUsers * nrcmds, -1, dtype=np.int32)
-
-        rstatus = self._slim_predict(
-            nrcmds,
-            self.handle,
-            data.handle,
-            res)
-
+        scores = np.zeros(data.nUsers * nrcmds, dtype=np.float32)
+        
+        if negitems != None:
+            assert nnegs >= nrcmds, \
+            'The number of negative items must be larger than the number of items to be recommended.'
+            
+            if isinstance(data.user2id, dict):
+                assert data.user2id.keys() == negitems.keys(), \
+                'The users in the negative items should be the same with the input matrix.'
+            else:
+                assert np.array_equal(data.user2id, np.array(sorted(list(negitems.keys())))), \
+                'The users in the negative items should be the same with the input matrix.'
+            
+            slim_negitems = np.full(data.nUsers * nnegs, -1, dtype=np.int32)
+            nusers = 0
+            newitems = 0
+            for key, value in negitems.items():
+                assert len(value) == nnegs, \
+                'The number of negative items should match nngs.'
+                for i in range(nnegs):
+                    try:
+                        slim_negitems[nusers * nnegs + i] = self.item2id[value[i]]
+                    except:
+                        newitems += 1
+                nusers += 1
+        
+            if newitems > 0:
+                print('%d negative items not in the training set.' % (newitems))
+            
+            rstatus = self._slim_predict_1vsk(
+                nrcmds,
+                nnegs,
+                self.handle,
+                data.handle,
+                slim_negitems,
+                res,
+                scores)
+            
+        else:
+            rstatus = self._slim_predict(
+                nrcmds,
+                self.handle,
+                data.handle,
+                res,
+                scores)
+        
         if rstatus == SLIM_OK:
             res = self.id2item[res].reshape(data.nUsers, nrcmds)
-            out = {}
-            for key, value in data.user2id.items():
-                out[key] = res[value, :]
+            scores = scores.reshape(data.nUsers, nrcmds)
+            out = dict()
+            outscores = dict()
+            
+            if isinstance(data.user2id, dict): 
+                for key, value in data.user2id.items():
+                    out[key] = res[value, :]
+                    outscores[key] = scores[value, :]
+            else:
+                for key in data.user2id:
+                    out[key] = res[key, :]
+                    outscores[key] = scores[key, :]
 
             if outfile:
                 f = open(outfile, 'w')
                 for key, value in out.items():
                     f.write(str(key) + ': ' + np.array2string(value,
                                                               max_line_width=np.inf) + '\n')
+                    f.write(str(key) + ': ' + np.array2string(outscores[key],
+                                                              max_line_width=np.inf) + '\n')
         else:
             raise RuntimeError(
                 'Something went wrong during prediction. Please check 1) if the model is estimated correctly; 2) if the input matrix for prediction is correct.')
 
-        return out
+        return out, outscores
 
     def save_model(self, modelfname, mapfname):
         # save the model if there is one
@@ -634,10 +687,26 @@ class SLIM(object):
             argtypes=[c_int,  # nrcmds
                       c_void_p,  # slimhandle
                       c_void_p,  # trnhandle
-                      array_1d_int32_t  # output
+                      array_1d_int32_t,  # output
+                      array_1d_float32_t  # scores
                       ]
         )
-
+        
+        # access Py_SLIM_Predict_1vsk from libslim.so
+        self._slim_predict_1vsk = wrap_function(
+            slimlib,
+            "Py_SLIM_Predict_1vsk",
+            restype=c_int32,  # resmat
+            argtypes=[c_int,  # nrcmds
+                      c_int,  # nnegs
+                      c_void_p,  # slimhandle
+                      c_void_p,  # trnhandle
+                      array_1d_int32_t,  # negitems
+                      array_1d_int32_t,  # output
+                      array_1d_float32_t  # scores
+                      ]
+        )
+        
         # access Py_csr_save from libslim.so
         self._slim_save = wrap_function(
             slimlib,
