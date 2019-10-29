@@ -392,17 +392,96 @@ int32_t Py_SLIM_GetTopN(slim_t *model, int32_t nratings, int32_t *itemids,
     return nrcmds;
 }
 
+int32_t Py_SLIM_GetTopN_1vsk(slim_t *model, int32_t nratings, int32_t *itemids,
+                        float *ratings, int32_t nrcmds, int32_t *rids,
+                        float *rscores, int32_t nnegs, int32_t *negitems, 
+                        int32_t dbglvl) {
+  params_t params;
+  gk_csr_t *smat;
+
+  /* setup params */
+  memset((void *)&params, 0, sizeof(params_t));
+
+  params.dbglvl = dbglvl;
+
+  InitTimers(&params);
+
+  /* get the model in the internal form */
+  smat = (gk_csr_t *)model;
+
+  /* get the recommendations */
+  gk_startwctimer(params.TotalTmr);
+  nrcmds = GetRec_1vsk(&params, smat, nratings, itemids, ratings, nrcmds,
+                              rids, rscores, nnegs, negitems);
+  gk_stopwctimer(params.TotalTmr);
+
+  if (nrcmds < 0)
+    return SLIM_ERROR;
+  else
+    return nrcmds;
+}
+
+/**************************************************************************/
+/*! @brief  predict topn lists
+    @param  nrcmds      number of items to be recommended
+            nnegs       number of negative items
+            slimhandle  handle to the training matrix
+            trnhandle   integer training options
+            negitems    pointer to the negative items
+            output      pointer to the output lists
+            scores      pointer to the output scores
+    @return a flag indicating whether the function succeed
+*/
+/**************************************************************************/
+int32_t Py_SLIM_Predict_1vsk(int32_t nrcmds, int32_t nnegs, slim_t *slimhandle, slim_t *trnhandle,
+                        int32_t *negitems, int32_t *output, float *scores) {
+  int32_t iU, iR, n, nvalid = 0;
+  int32_t *rids;
+  float *rscores;
+  gk_csr_t *model, *trnmat;
+
+  model = (gk_csr_t *)slimhandle;
+  trnmat = (gk_csr_t *)trnhandle;
+
+  rids = gk_i32malloc(nrcmds, "rids");
+  rscores = gk_fmalloc(nrcmds, "rscores");
+
+  for (iU = 0; iU < trnmat->nrows; iU++) {
+    n = Py_SLIM_GetTopN_1vsk(
+        model, trnmat->rowptr[iU + 1] - trnmat->rowptr[iU],
+        trnmat->rowind + trnmat->rowptr[iU],
+        (trnmat->rowval ? trnmat->rowval + trnmat->rowptr[iU] : NULL), nrcmds,
+        rids, rscores, nnegs, negitems + iU * nnegs, 0);
+
+    if (n != SLIM_ERROR) {
+      for (iR = 0; iR < n; iR++) {
+        output[iU * nrcmds + iR] = rids[iR];
+        scores[iU * nrcmds + iR] = rscores[iR];
+        // printf("id: %d", rids[iR]);
+      }
+      nvalid += 1;
+      // printf("---\n");
+    }
+  }
+  if (nvalid < 1) {
+    return SLIM_ERROR;
+  } else {
+    return SLIM_OK;
+  }
+}
+
 /**************************************************************************/
 /*! @brief  predict topn lists
     @param  nrcmds      number of items to be recommended
             slimhandle  handle to the training matrix
             trnhandle   integer training options
             output      pointer to the output lists
+            scores      pointer to the output scores
     @return a flag indicating whether the function succeed
 */
 /**************************************************************************/
 int32_t Py_SLIM_Predict(int32_t nrcmds, slim_t *slimhandle, slim_t *trnhandle,
-                        int32_t *output) {
+                        int32_t *output, float *scores) {
   int32_t iU, iR, n, nvalid = 0;
   int32_t *rids;
   float *rscores;
@@ -424,6 +503,7 @@ int32_t Py_SLIM_Predict(int32_t nrcmds, slim_t *slimhandle, slim_t *trnhandle,
     if (n != SLIM_ERROR) {
       for (iR = 0; iR < n; iR++) {
         output[iU * nrcmds + iR] = rids[iR];
+        scores[iU * nrcmds + iR] = rscores[iR];
       }
       nvalid += 1;
     }

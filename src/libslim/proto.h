@@ -34,6 +34,10 @@ double ComputeAvgZeroScore(gk_csr_t *mat, double *x, double *y, int32_t ntop);
 int32_t GetRecommendations(params_t *params, gk_csr_t *smat, int32_t nratings,
             int32_t *itemids, float *ratings, int32_t nrcmds, int32_t *rids,
             float *rscores);
+int32_t GetRec_1vsk(params_t *params, gk_csr_t *smat, int32_t nratings,
+                           int32_t *itemids, float *ratings, int32_t nrcmds,
+                           int32_t *rids, float *rscores, int32_t nnegs, 
+                           int32_t *negitems);
 
 /* timing.c */
 void InitTimers(params_t *params);
