@@ -69,3 +69,65 @@ int32_t GetRecommendations(params_t *params, gk_csr_t *smat, int32_t nratings,
 
   return nrcmds;
 }
+
+
+/**************************************************************************/
+/*! Get the top-N recommendations given the provided historical data */
+/**************************************************************************/
+int32_t GetRec_1vsk(params_t *params, gk_csr_t *smat, int32_t nratings,
+                           int32_t *itemids, float *ratings, int32_t nrcmds,
+                           int32_t *rids, float *rscores, int32_t nnegs, 
+                           int32_t *negitems) {
+  ssize_t j;
+  int32_t iR, i, k, ncols, ncand;
+  ssize_t *rowptr;
+  int32_t *rowind, *marker;
+  float *rowval, rating;
+  gk_fkv_t *cand;
+
+  ncols = smat->ncols;
+  rowptr = smat->rowptr;
+  rowind = smat->rowind;
+  rowval = smat->rowval;
+
+  marker = gk_i32smalloc(ncols, -2, "marker");
+  cand = gk_fkvmalloc(ncols, "cand");
+
+  ncand = 0;
+  for (iR = 0; iR < nnegs; iR++) {
+    cand[ncand].val = negitems[iR];
+    cand[ncand].key = 0.0;
+    if (negitems[iR] >= 0 && negitems[iR] < ncols) {
+      marker[negitems[iR]] = ncand++;  
+    }
+    else {
+      ncand++; 
+    }
+  }
+
+  for (iR = 0; iR < nratings; iR++) {
+    i = itemids[iR];
+    if (i >= ncols && i < 0)
+      continue;
+
+    rating = (ratings ? ratings[iR] : 1.0);
+    for (j = rowptr[i]; j < rowptr[i + 1]; j++) {
+      k = rowind[j];
+      if (marker[k] == -2)
+        continue; /* part of the history */
+
+      cand[marker[k]].key += rating * rowval[j];
+    }
+  }
+
+  gk_fkvsortd(ncand, cand);
+
+  nrcmds = gk_min(ncand, nrcmds);
+  for (iR = 0; iR < nrcmds; iR++) {
+    rids[iR] = cand[iR].val;
+    rscores[iR] = cand[iR].key;
+  }
+
+  gk_free((void **)&marker, &cand, LTERM);
+  return nrcmds;
+}
