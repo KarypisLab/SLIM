@@ -6,6 +6,7 @@ Created on Tue Jul  2 00:49:28 2019
 @author: dminerx007
 """
 
+import os
 import site
 import time
 import scipy
@@ -629,24 +630,27 @@ class SLIM(object):
             @return None
         '''
         # if there is a model, destruct the model
-        if self.ismodel == SLIM_OK:
-            self._slim_free(self.handle)
+        if os.path.isfile(modelfname) and os.path.isfile(mapfname): 
+            if self.ismodel == SLIM_OK:
+                self._slim_free(self.handle)
+            else:
+                self.handle = c_void_p()
+            self.ismodel = self._slim_load(
+                byref(self.handle), c_char_p(modelfname.encode('utf-8')))
+    
+            try:
+                self.id2item = np.genfromtxt(mapfname, dtype=np.int32)
+            except:
+                self.id2item = np.genfromtxt(mapfname)
+            self.item2id = {}
+            for i in range(len(self.id2item)):
+                self.item2id[self.id2item[i]] = i
+            self.nItems = len(self.id2item)
+    
+            if self.ismodel != SLIM_OK:
+                raise RuntimeError("Fail to laod the model.")
         else:
-            self.handle = c_void_p()
-        self.ismodel = self._slim_load(
-            byref(self.handle), c_char_p(modelfname.encode('utf-8')))
-
-        try:
-            self.id2item = np.genfromtxt(mapfname, dtype=np.int32)
-        except:
-            self.id2item = np.genfromtxt(mapfname)
-        self.item2id = {}
-        for i in range(len(self.id2item)):
-            self.item2id[self.id2item[i]] = i
-        self.nItems = len(self.id2item)
-
-        if self.ismodel != SLIM_OK:
-            raise RuntimeError("Fail to laod the model.")
+            raise RuntimeError('File does not exist or invalid filename.')
             
     def to_csr(self, returnmap=False):
         ''' @brief  export the model as a scipy csr
