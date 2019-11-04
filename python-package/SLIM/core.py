@@ -516,7 +516,7 @@ class SLIM(object):
             raise RuntimeError(
                 'Something went wrong with model estimation or evaluation when l1=%.4f, l2=%.4f. Please check the input matrix.' % (bestl1HR, bestl2HR))
 
-    def predict(self, data, nrcmds=10, outfile=None, negitems=None, nnegs=0):
+    def predict(self, data, nrcmds=10, outfile=None, negitems=None, nnegs=0, returnscores=False):
         ''' @brief  predict using the learned SLIM model
             @params data:     a SLIMatrix object to be predicted
                     nrcmds:   number of recommended items for each user
@@ -600,15 +600,21 @@ class SLIM(object):
                 for key, value in out.items():
                     f.write(str(key) + ': ' + np.array2string(value,
                                                               max_line_width=np.inf) + '\n')
-                    f.write(str(key) + ': ' + np.array2string(outscores[key],
-                                                              max_line_width=np.inf) + '\n')
+                    if returnscores:
+                        f.write(str(key) + ': ' + np.array2string(outscores[key],
+                                                                  max_line_width=np.inf) + '\n')
         else:
             raise RuntimeError(
                 'Something went wrong during prediction. Please check 1) if the model is estimated correctly; 2) if the input matrix for prediction is correct.')
-
-        return out, outscores
+        
+        return out, outscores if returnscores else out
 
     def save_model(self, modelfname, mapfname):
+        ''' @brief  save the model
+            @params modelfname: filename to save the model
+                    mapfname:   filename to save the item map
+            @return None
+        '''
         # save the model if there is one
         if self.ismodel == SLIM_OK:
             self._slim_save(self.handle, c_char_p(modelfname.encode('utf-8')))
@@ -617,6 +623,11 @@ class SLIM(object):
             raise RuntimeError("Not exist a model to save.")
 
     def load_model(self, modelfname, mapfname):
+        ''' @brief  load a model
+            @params modelfname: filename of the model
+                    mapfname:   filename of the item map
+            @return None
+        '''
         # if there is a model, destruct the model
         if self.ismodel == SLIM_OK:
             self._slim_free(self.handle)
@@ -636,7 +647,35 @@ class SLIM(object):
 
         if self.ismodel != SLIM_OK:
             raise RuntimeError("Fail to laod the model.")
-
+            
+    def to_csr(self, returnmap=False):
+        ''' @brief  export the model as a scipy csr
+            @params returnmap: return the map or not
+            @return modelcsr: the model as a scipy csr
+                    itemmap (optional): the item map attached with the model
+        '''
+        if self.ismodel == SLIM_OK:
+            nnz = c_int(0)
+            self._slim_stat(self.handle, byref(nnz))
+            
+            indptr = np.zeros(self.nItems + 1, dtype=np.int32)
+            indices = np.zeros(nnz.value, dtype=np.int32)
+            data = np.ones(nnz.value, dtype=np.float32)
+            
+            self._slim_export(self.handle, indptr, indices, data)
+            
+            modelcsr = csr_matrix((data, indices, indptr), shape=(self.nItems, self.nItems))
+            
+            if returnmap:
+                itemmap = self.id2item[:]
+                return modelcsr, itemmap
+            else:
+                return modelcsr
+        else:
+            raise RuntimeError("Not exist a model to export.")
+        
+        
+        
     def _get_slim(self):
         ''' @brief  wrap up slim functions from c library for python
             @params None
@@ -733,5 +772,27 @@ class SLIM(object):
             "Py_csr_free",
             restype=c_int32,  # flag
             argtypes=[c_void_p  # mathandle
+                      ]
+        )
+        
+        # access Py_csr_stat from libslim.so
+        self._slim_stat = wrap_function(
+            slimlib,
+            "Py_csr_stat",
+            restype=c_int32,  # flag
+            argtypes=[c_void_p,  # mathandle
+                      c_void_p  # nnz
+                      ]
+        )
+        
+        # access Py_csr_stat from libslim.so
+        self._slim_export = wrap_function(
+            slimlib,
+            "Py_csr_export",
+            restype=c_int32,  # flag
+            argtypes=[c_void_p,  # mathandle
+                      array_1d_int32_t,  # indptr
+                      array_1d_int32_t,  # indices
+                      array_1d_float32_t  # data
                       ]
         )
