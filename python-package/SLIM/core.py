@@ -608,7 +608,10 @@ class SLIM(object):
             raise RuntimeError(
                 'Something went wrong during prediction. Please check 1) if the model is estimated correctly; 2) if the input matrix for prediction is correct.')
         
-        return out, outscores if returnscores else out
+        if returnscores:
+            return out, outscores 
+        else:
+            return out
 
     def save_model(self, modelfname, mapfname):
         ''' @brief  save the model
