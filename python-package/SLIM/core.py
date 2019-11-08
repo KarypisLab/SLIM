@@ -549,18 +549,17 @@ class SLIM(object):
                 'The users in the negative items should be the same with the input matrix.'
             
             slim_negitems = np.full(data.nUsers * nnegs, -1, dtype=np.int32)
-            nusers = 0
+
             newitems = 0
             for key, value in negitems.items():
                 assert len(value) == nnegs, \
                 'The number of negative items should match nngs.'
                 for i in range(nnegs):
                     try:
-                        slim_negitems[nusers * nnegs + i] = self.item2id[value[i]]
+                        slim_negitems[data.user2id[key] * nnegs + i] = self.item2id[value[i]]
                     except:
                         newitems += 1
-                nusers += 1
-        
+
             if newitems > 0:
                 print('%d negative items not in the training set.' % (newitems))
             
