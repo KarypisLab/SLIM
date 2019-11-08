@@ -50,7 +50,7 @@ typedef void slim_t;
  * Constant definitions
  *-------------------------------------------------------------------------*/
 /* SLIM's version number */
-#define SLIM_VERSION "2.0pre1"
+#define SLIM_VERSION "2.0"
 
 /* The maximum length of the options[] array */
 #define SLIM_NOPTIONS 40
