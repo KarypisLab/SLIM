@@ -250,4 +250,6 @@ int main(int argc, char *argv[]) {
   gk_csr_Free(&oldmat);
   if (tstmat)
     gk_csr_Free(&tstmat);
+  if (negmat)
+    gk_csr_Free(&negmat);
 }
