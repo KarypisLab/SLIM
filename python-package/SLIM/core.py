@@ -561,7 +561,7 @@ class SLIM(object):
                         newitems += 1
 
             if newitems > 0:
-                print('%d negative items not in the training set.' % (newitems))
+                print('%d candidate items not in the training set.' % (newitems))
             
             rstatus = self._slim_predict_1vsk(
                 nrcmds,
