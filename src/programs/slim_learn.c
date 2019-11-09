@@ -33,12 +33,14 @@ int main(int argc, char *argv[]) {
       "------------------------------------------------------------------\n");
   printf("  trnfile: %s, nrows: %d, ncols: %d, nnz: %zd\n", params->trnfile,
          tmat->nrows, tmat->ncols, tmat->rowptr[tmat->nrows]);
-  printf("  l1r: %.2le, l2r: %.2le, optTol: %.2le, niters: %d\n", params->l1r,
-         params->l2r, params->optTol, params->niters);
-  printf("  binarize: %d, nnbrs: %d, nthreads: %d, dbglvl: %d\n",
-         params->binarize, params->nnbrs, params->nthreads, params->dbglvl);
-  printf("  simtype: %s, mdlfile: %s\n", slim_simtypenames[params->simtype],
-         params->mdlfile);
+  printf("  l1r: %.2le, l2r: %.2le, binarize: %s\n", params->l1r, 
+         params->l2r, (params->binarize == 0 ? "No" : "Yes"));
+  printf("  solver: %s, optTol: %.2le, niters: %d\n", 
+         slim_algonames[params->algo], params->optTol, params->niters);
+  printf("  mdlfile: %s, nthreads: %d, dbglvl: %d\n",
+         params->mdlfile, params->nthreads, params->dbglvl);
+  printf("  simtype: %s, nnbrs: %d\n", 
+         slim_simtypenames[params->simtype], params->nnbrs);
   printf("\nEstimating model...\n");
 
   /* free any user-supplied ratings if set to be ignored */

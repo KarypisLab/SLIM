@@ -10,10 +10,10 @@ gklib_path = not-set
 bcls_path  = not-set
 shared     = not-set
 with_mkl   = not-set
-cc         = /usr/bin/gcc
-cxx        = /usr/bin/g++
-#cc         = gcc-mp-4.9
-#cxx        = g++-mp-4.9
+cc         = not-set
+cxx        = not-set
+#cc         = /usr/bin/gcc
+#cxx        = /usr/bin/g++
 
 #===============================================================
 # There should be no need to modify beyond this point

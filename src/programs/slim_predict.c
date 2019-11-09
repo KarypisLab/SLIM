@@ -14,14 +14,15 @@
 /*************************************************************************/
 int main(int argc, char *argv[]) {
   ssize_t zI;
-  int32_t iU, iR, nrcmds, nhits[3], ntrue[2];
+  int32_t i, iU, iR, nrcmds, ask_nrcmds, ncands, nhits[3], ntrue[2];
   int32_t nvalid, nvalid_head, nvalid_tail;
   float all_hr, head_hr, tail_hr;
   int is_tail_u, is_head_u;
   int32_t *rids, *rmarker, *fmarker;
+  gk_fkv_t *rcands, cand;
   float *rscores, hr[3], arhr, larhr, baseline;
   params_t *params;
-  gk_csr_t *oldmat, *tstmat = NULL, *model;
+  gk_csr_t *oldmat, *tstmat = NULL, *negmat = NULL, *model;
   int32_t ioptions[SLIM_NOPTIONS];
   FILE *fpout = NULL;
 
@@ -34,6 +35,8 @@ int main(int argc, char *argv[]) {
   oldmat = gk_csr_Read(params->trnfile, params->ifmt, params->readvals, 0);
   if (params->tstfile)
     tstmat = gk_csr_Read(params->tstfile, params->ifmt, params->readvals, 0);
+  if (params->negfile)
+    negmat = gk_csr_Read(params->negfile, params->ifmt, params->readvals, 0);
 
   printf(
       "------------------------------------------------------------------\n");
@@ -47,6 +50,9 @@ int main(int argc, char *argv[]) {
   if (tstmat)
     printf("  tstfile: %s, nrows: %d, ncols: %d, nnz: %zd\n", params->tstfile,
            tstmat->nrows, tstmat->ncols, tstmat->rowptr[tstmat->nrows]);
+  if (negmat)
+    printf("  negfile: %s, nrows: %d, ncols: %d, nnz: %zd\n", params->negfile,
+           negmat->nrows, negmat->ncols, negmat->rowptr[negmat->nrows]);
   if (params->outfile)
     printf("  outfile: %s\n",
            (params->outfile ? params->outfile : "No output"));
@@ -62,18 +68,25 @@ int main(int argc, char *argv[]) {
     gk_free((void **)&oldmat->rowval, LTERM);
     if (tstmat)
       gk_free((void **)&tstmat->rowval, LTERM);
+    if (negmat)
+      gk_free((void **)&negmat->rowval, LTERM);
   }
 
   SLIM_iSetDefaults(ioptions);
   ioptions[SLIM_OPTION_DBGLVL] = params->dbglvl;
 
-  /* predict for each row in oldmat */
   if (params->outfile)
     fpout = gk_fopen(params->outfile, "w", "outfile");
 
-  rids = gk_i32malloc(params->nrcmds, "rids");
-  rscores = gk_fmalloc(params->nrcmds, "rscores");
+  /* if we are using a negative test, ask for a score for all non-supplied items */
+  ask_nrcmds = (negmat ? model->nrows : params->nrcmds);
+
+  /* allocate neccessary arrays */
+  rids    = gk_i32malloc(ask_nrcmds, "rids");
+  rscores = gk_fmalloc(ask_nrcmds, "rscores");
   rmarker = (tstmat ? gk_i32smalloc(model->ncols, -1, "rmarker") : NULL);
+  rcands  = (negmat ? gk_fkvmalloc(model->ncols, "rcands") : NULL);
+
   // get head and tail columns, mark 0 for head items and 1 for items in tail
   fmarker = (tstmat ? SLIM_DetermineHeadAndTail(
                           oldmat->nrows, gk_max(oldmat->ncols, tstmat->ncols),
@@ -84,12 +97,72 @@ int main(int argc, char *argv[]) {
   arhr = 0.0;
   nvalid = nvalid_head = nvalid_tail = 0;
 
+
+  /* predict for each row in oldmat */
   for (iU = 0; iU < oldmat->nrows; iU++) {
     nrcmds = SLIM_GetTopN(
         model, oldmat->rowptr[iU + 1] - oldmat->rowptr[iU],
         oldmat->rowind + oldmat->rowptr[iU],
-        (oldmat->rowval ? oldmat->rowval + oldmat->rowptr[iU] : NULL), ioptions,
-        params->nrcmds, rids, rscores);
+        (oldmat->rowval ? oldmat->rowval + oldmat->rowptr[iU] : NULL), 
+        ioptions, ask_nrcmds, rids, rscores);
+
+    /* if negative test items, select the params->nrcmds from neg+pos test */
+    if (negmat && nrcmds != SLIM_ERROR) {
+      for (zI = tstmat->rowptr[iU]; zI < tstmat->rowptr[iU + 1]; zI++) 
+        rmarker[tstmat->rowind[zI]] = -2;
+      for (zI = negmat->rowptr[iU]; zI < negmat->rowptr[iU + 1]; zI++) 
+        rmarker[negmat->rowind[zI]] = -2;
+
+      /* select the neg+pos that were in the recommended list */
+      for (ncands=0, iR=0; iR<nrcmds; iR++) {
+        if (rmarker[rids[iR]] == -2) {
+          rmarker[rids[iR]] = -3;
+          rcands[ncands].val = rids[iR];
+          rcands[ncands].key = rscores[iR];
+          ncands++;
+        }
+      }
+
+      //printf("u: %5d, ncands: %5d, ", iU, ncands);
+
+      /* add the neg+pos that were not in the recommended list */
+      for (zI = tstmat->rowptr[iU]; zI < tstmat->rowptr[iU + 1]; zI++) {
+        if (rmarker[tstmat->rowind[zI]] != -3) {
+          rcands[ncands].val = tstmat->rowind[zI];
+          rcands[ncands].key = 0.0;
+          ncands++;
+        }
+        rmarker[tstmat->rowind[zI]] = -1;
+      }
+      for (zI = negmat->rowptr[iU]; zI < negmat->rowptr[iU + 1]; zI++) {
+        if (rmarker[negmat->rowind[zI]] != -3) {
+          rcands[ncands].val = negmat->rowind[zI];
+          rcands[ncands].key = 0.0;
+          ncands++;
+        }
+        rmarker[negmat->rowind[zI]] = -1;
+      }
+      //printf("ncands: %5d,", ncands);
+
+
+      /* shuffle prior to sorting */
+      for (iR=0; iR<ncands; iR++) {
+        i = gk_irandInRange(ncands);
+        gk_SWAP(rcands[iR], rcands[i], cand);
+      }
+      for (iR=0; iR<ncands; iR++) {
+        i = gk_irandInRange(ncands);
+        gk_SWAP(rcands[iR], rcands[i], cand);
+      }
+
+      gk_fkvsortd(ncands, rcands);
+      nrcmds = gk_min(nrcmds, params->nrcmds);
+      for (iR=0; iR<nrcmds; iR++) {
+        rids[iR]    = rcands[iR].val;
+        rscores[iR] = rcands[iR].key;
+      }
+      //printf(" nrcmds: %5d,", nrcmds);
+    }
 
     nvalid += (nrcmds != SLIM_ERROR ? 1 : 0);
     is_tail_u = is_head_u = 0;
@@ -140,6 +213,7 @@ int main(int argc, char *argv[]) {
           larhr += 1.0 / (1.0 + iR);
         }
       }
+      //printf(" hit: %d\n", nhits[2]);
 
       // head hit rate in test data
       hr[0] += (nhits[0] > 0 ? 1.0 * nhits[0] / ntrue[0] : 0.0);
@@ -171,9 +245,11 @@ int main(int argc, char *argv[]) {
       "------------------------------------------------------------------\n");
 
   /* clean up */
-  gk_free((void **)&rids, &rscores, &rmarker, &fmarker, LTERM);
+  gk_free((void **)&rids, &rscores, &rmarker, &fmarker, &rcands, LTERM);
   SLIM_FreeModel((slim_t **)&model);
   gk_csr_Free(&oldmat);
   if (tstmat)
     gk_csr_Free(&tstmat);
+  if (negmat)
+    gk_csr_Free(&negmat);
 }
