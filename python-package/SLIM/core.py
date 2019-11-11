@@ -6,6 +6,7 @@ Created on Tue Jul  2 00:49:28 2019
 @author: dminerx007
 """
 
+import os
 import site
 import time
 import scipy
@@ -516,12 +517,15 @@ class SLIM(object):
             raise RuntimeError(
                 'Something went wrong with model estimation or evaluation when l1=%.4f, l2=%.4f. Please check the input matrix.' % (bestl1HR, bestl2HR))
 
-    def predict(self, data, nrcmds=10, outfile=None):
+    def predict(self, data, nrcmds=10, outfile=None, negitems=None, nnegs=0, returnscores=False):
         ''' @brief  predict using the learned SLIM model
-            @params data:    a SLIMatrix object to be predicted
-                    nrcmds:  number of recommended items for each user
-                    outfile: a filename to dump the topn lists
-            @return an numpy ndarray of shape (nUsers, nrcmds)
+            @params data:     a SLIMatrix object to be predicted
+                    nrcmds:   number of recommended items for each user
+                    outfile:  a filename to dump the topn lists
+                    negitems: negative items
+                    nnegs:    number of negative items
+            @return out:        an numpy ndarray of shape (nUsers, nrcmds) with recommended item ids
+                    outscores:  an numpy ndarray of shape (nUsers, nrcmds) with recommended scores of the corresponding items
         '''
         if self.ismodel != SLIM_OK:
             raise TypeError("Model not found. Please train a model.")
@@ -531,31 +535,89 @@ class SLIM(object):
 
         # initialize the result matrix
         res = np.full(data.nUsers * nrcmds, -1, dtype=np.int32)
+        scores = np.zeros(data.nUsers * nrcmds, dtype=np.float32)
+        
+        if negitems != None:
+            assert nnegs >= nrcmds, \
+            'The number of negative items must be larger than the number of items to be recommended.'
+            
+            if isinstance(data.user2id, dict):
+                assert data.user2id.keys() == negitems.keys(), \
+                'The users in the negative items should be the same with the input matrix.'
+            else:
+                assert np.array_equal(data.user2id, np.array(sorted(list(negitems.keys())))), \
+                'The users in the negative items should be the same with the input matrix.'
+            
+            slim_negitems = np.full(data.nUsers * nnegs, -1, dtype=np.int32)
 
-        rstatus = self._slim_predict(
-            nrcmds,
-            self.handle,
-            data.handle,
-            res)
+            newitems = 0
+            for key, value in negitems.items():
+                assert len(value) == nnegs, \
+                'The number of negative items should match nngs.'
+                for i in range(nnegs):
+                    try:
+                        slim_negitems[data.user2id[key] * nnegs + i] = self.item2id[value[i]]
+                    except:
+                        newitems += 1
 
+            if newitems > 0:
+                print('%d negative items not in the training set.' % (newitems))
+            
+            rstatus = self._slim_predict_1vsk(
+                nrcmds,
+                nnegs,
+                self.handle,
+                data.handle,
+                slim_negitems,
+                res,
+                scores)
+            
+        else:
+            rstatus = self._slim_predict(
+                nrcmds,
+                self.handle,
+                data.handle,
+                res,
+                scores)
+        
         if rstatus == SLIM_OK:
             res = self.id2item[res].reshape(data.nUsers, nrcmds)
-            out = {}
-            for key, value in data.user2id.items():
-                out[key] = res[value, :]
+            scores = scores.reshape(data.nUsers, nrcmds)
+            out = dict()
+            outscores = dict()
+            
+            if isinstance(data.user2id, dict): 
+                for key, value in data.user2id.items():
+                    out[key] = res[value, :]
+                    outscores[key] = scores[value, :]
+            else:
+                for key in data.user2id:
+                    out[key] = res[key, :]
+                    outscores[key] = scores[key, :]
 
             if outfile:
                 f = open(outfile, 'w')
                 for key, value in out.items():
                     f.write(str(key) + ': ' + np.array2string(value,
                                                               max_line_width=np.inf) + '\n')
+                    if returnscores:
+                        f.write(str(key) + ': ' + np.array2string(outscores[key],
+                                                                  max_line_width=np.inf) + '\n')
         else:
             raise RuntimeError(
                 'Something went wrong during prediction. Please check 1) if the model is estimated correctly; 2) if the input matrix for prediction is correct.')
-
-        return out
+        
+        if returnscores:
+            return out, outscores 
+        else:
+            return out
 
     def save_model(self, modelfname, mapfname):
+        ''' @brief  save the model
+            @params modelfname: filename to save the model
+                    mapfname:   filename to save the item map
+            @return None
+        '''
         # save the model if there is one
         if self.ismodel == SLIM_OK:
             self._slim_save(self.handle, c_char_p(modelfname.encode('utf-8')))
@@ -564,26 +626,62 @@ class SLIM(object):
             raise RuntimeError("Not exist a model to save.")
 
     def load_model(self, modelfname, mapfname):
+        ''' @brief  load a model
+            @params modelfname: filename of the model
+                    mapfname:   filename of the item map
+            @return None
+        '''
         # if there is a model, destruct the model
-        if self.ismodel == SLIM_OK:
-            self._slim_free(self.handle)
+        if os.path.isfile(modelfname) and os.path.isfile(mapfname): 
+            if self.ismodel == SLIM_OK:
+                self._slim_free(self.handle)
+            else:
+                self.handle = c_void_p()
+            self.ismodel = self._slim_load(
+                byref(self.handle), c_char_p(modelfname.encode('utf-8')))
+    
+            try:
+                self.id2item = np.genfromtxt(mapfname, dtype=np.int32)
+            except:
+                self.id2item = np.genfromtxt(mapfname)
+            self.item2id = {}
+            for i in range(len(self.id2item)):
+                self.item2id[self.id2item[i]] = i
+            self.nItems = len(self.id2item)
+    
+            if self.ismodel != SLIM_OK:
+                raise RuntimeError("Fail to laod the model.")
         else:
-            self.handle = c_void_p()
-        self.ismodel = self._slim_load(
-            byref(self.handle), c_char_p(modelfname.encode('utf-8')))
-
-        try:
-            self.id2item = np.genfromtxt(mapfname, dtype=np.int32)
-        except:
-            self.id2item = np.genfromtxt(mapfname)
-        self.item2id = {}
-        for i in range(len(self.id2item)):
-            self.item2id[self.id2item[i]] = i
-        self.nItems = len(self.id2item)
-
-        if self.ismodel != SLIM_OK:
-            raise RuntimeError("Fail to laod the model.")
-
+            raise RuntimeError('File does not exist or invalid filename.')
+            
+    def to_csr(self, returnmap=False):
+        ''' @brief  export the model as a scipy csr
+            @params returnmap: return the map or not
+            @return modelcsr: the model as a scipy csr
+                    itemmap (optional): the item map attached with the model
+        '''
+        if self.ismodel == SLIM_OK:
+            nnz = c_int(0)
+            self._slim_stat(self.handle, byref(nnz))
+            
+            indptr = np.zeros(self.nItems + 1, dtype=np.int32)
+            indices = np.zeros(nnz.value, dtype=np.int32)
+            data = np.ones(nnz.value, dtype=np.float32)
+            
+            self._slim_export(self.handle, indptr, indices, data)
+            
+            modelcsr = csr_matrix((data, indices, indptr), shape=(self.nItems, self.nItems))
+            
+            if returnmap:
+                itemmap = self.id2item[:]
+                return modelcsr, itemmap
+            else:
+                return modelcsr
+        else:
+            raise RuntimeError("Not exist a model to export.")
+        
+        
+        
     def _get_slim(self):
         ''' @brief  wrap up slim functions from c library for python
             @params None
@@ -634,10 +732,26 @@ class SLIM(object):
             argtypes=[c_int,  # nrcmds
                       c_void_p,  # slimhandle
                       c_void_p,  # trnhandle
-                      array_1d_int32_t  # output
+                      array_1d_int32_t,  # output
+                      array_1d_float32_t  # scores
                       ]
         )
-
+        
+        # access Py_SLIM_Predict_1vsk from libslim.so
+        self._slim_predict_1vsk = wrap_function(
+            slimlib,
+            "Py_SLIM_Predict_1vsk",
+            restype=c_int32,  # resmat
+            argtypes=[c_int,  # nrcmds
+                      c_int,  # nnegs
+                      c_void_p,  # slimhandle
+                      c_void_p,  # trnhandle
+                      array_1d_int32_t,  # negitems
+                      array_1d_int32_t,  # output
+                      array_1d_float32_t  # scores
+                      ]
+        )
+        
         # access Py_csr_save from libslim.so
         self._slim_save = wrap_function(
             slimlib,
@@ -664,5 +778,27 @@ class SLIM(object):
             "Py_csr_free",
             restype=c_int32,  # flag
             argtypes=[c_void_p  # mathandle
+                      ]
+        )
+        
+        # access Py_csr_stat from libslim.so
+        self._slim_stat = wrap_function(
+            slimlib,
+            "Py_csr_stat",
+            restype=c_int32,  # flag
+            argtypes=[c_void_p,  # mathandle
+                      c_void_p  # nnz
+                      ]
+        )
+        
+        # access Py_csr_stat from libslim.so
+        self._slim_export = wrap_function(
+            slimlib,
+            "Py_csr_export",
+            restype=c_int32,  # flag
+            argtypes=[c_void_p,  # mathandle
+                      array_1d_int32_t,  # indptr
+                      array_1d_int32_t,  # indices
+                      array_1d_float32_t  # data
                       ]
         )

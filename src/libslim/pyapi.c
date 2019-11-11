@@ -76,6 +76,53 @@ int32_t Py_csr_free(slim_t *mathandle) {
 }
 
 /**************************************************************************/
+/*! @brief  get the statistics (nnz) of the csr model
+    @param  mathandle handle to the matrix
+            nnz       number of non-zeros in the model
+    @return a flag indicating whether the function succeed
+*/
+/**************************************************************************/
+int32_t Py_csr_stat(slim_t *mathandle, int32_t *nnz) {
+  gk_csr_t *mat = (gk_csr_t *)mathandle;
+  *nnz = mat->rowptr[mat->nrows];
+  return SLIM_OK;
+}
+
+
+/**************************************************************************/
+/*! @brief  export the gk_csr matrix to a scipy csr matrix
+    @param  mathandle handle to the matrix
+            indptr    index pointer of the scipy csr matrix
+            indices   index of the scipy csr matrix
+            data      data of the scipy csr matrix
+    @return a flag indicating whether the function succeed
+*/
+/**************************************************************************/
+int32_t Py_csr_export(slim_t *mathandle, int32_t *indptr, int32_t *indices, float *data) {
+  int32_t nrows, nnz;
+
+  gk_csr_t *mat = (gk_csr_t *)mathandle;
+  nrows = mat->nrows;
+  nnz = mat->rowptr[mat->nrows];
+
+  for (int i = 0; i < nrows + 1; i++) {
+    indptr[i] = mat->rowptr[i];
+  }
+
+  for (int i = 0; i < nnz; i++) {
+    indices[i] = mat->rowind[i];
+  }
+
+  if (mat->rowval) {
+    for (int i = 0; i < nnz; i++) {
+      data[i] = mat->rowval[i];
+    }
+  }
+
+  return SLIM_OK;
+}
+
+/**************************************************************************/
 /*! @brief  estimate a slim model and return the model handle to python
     @param  trnhandle  handle to the training matrix
             ioptions   integer training options
