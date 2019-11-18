@@ -17,6 +17,7 @@ the University of Minnesota
 typedef struct {
   char *trnfile;   /*!< the file of historical preferences */
   char *tstfile;   /*!< the file to validate the recommendations */
+  char *negfile;   /*!< the file containing the negative test instances */
   char *l12file;   /*!< the file that contains the regularization values over
                       which to search */
   char *mdlfile;   /*!< the model file during prediction */
