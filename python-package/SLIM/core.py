@@ -625,10 +625,11 @@ class SLIM(object):
         else:
             raise RuntimeError("Not exist a model to save.")
 
-    def load_model(self, modelfname, mapfname):
+    def load_model(self, modelfname, mapfname, map_dtype=np.int32):
         ''' @brief  load a model
             @params modelfname: filename of the model
                     mapfname:   filename of the item map
+                    map_dtype:  data type of the map labels
             @return None
         '''
         # if there is a model, destruct the model
@@ -641,7 +642,7 @@ class SLIM(object):
                 byref(self.handle), c_char_p(modelfname.encode('utf-8')))
     
             try:
-                self.id2item = np.genfromtxt(mapfname, dtype=np.int32)
+                self.id2item = np.genfromtxt(mapfname, dtype=map_dtype)
             except:
                 self.id2item = np.genfromtxt(mapfname)
             self.item2id = {}
